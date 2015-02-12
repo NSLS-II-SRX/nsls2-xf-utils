@@ -165,6 +165,9 @@ def main(argv=None):
 	det_acq = PV(detstr+'Acquire')
 	det_exp = PV(detstr+'AcquireTime')
 	det_ROI_int = PV(detstr+'Stats1:Total_RBV')
+	det_imode = PV(detstr+'ImageMode')
+
+	
 
 	xmot_cur.get(as_string = True)
 	xmot_cur.add_callback(cbfx)
@@ -176,6 +179,10 @@ def main(argv=None):
 	print "readback is "+detstr+'Stats1:Total_RBV'
 	print "motor PV is "+xmotstr+'Mtr.VAL'
 	print "trigger PV is "+detstr+'Acquire'
+	if det_acq.get() is not 0:
+		det_acq.put(1)
+	det_imode.put(0)
+
 	#check command line options
 	if options.xo == None:
 		xo = xmot_cur.get()
@@ -262,12 +269,12 @@ def main(argv=None):
 		else:
 			print "bang"
 		if options.sim is False:	
-			str=' [%(X)04d] at (X=%(XC)8.3f): Integrated ROI signal is %(RI)10.7e '%{"X":Ncol,"XC":xmot_cur.get(), "RI":ROIint}
+			str=' [%(X)04d] at (X= %(XC)8.3f ): Integrated ROI signal is %(RI)10.7e '%{"X":Ncol,"XC":xmot_cur.get(), "RI":ROIint}
 			print str
 			fp.write(str)
 			fp.write('\n')
 		else:
-			str=' [%(X)04d] at (X=%(XC)8.3f)'%{"X":Ncol,"XC":tar[0][0]}
+			str=' [%(X)04d] at (X= %(XC)8.3f )'%{"X":Ncol,"XC":tar[0][0]}
 			print str
 			fp.write(str)
 			fp.write('\n')

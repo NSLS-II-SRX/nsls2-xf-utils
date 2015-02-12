@@ -298,13 +298,13 @@ def main(argv=None):
 		else:
 			print "bang"
 		if options.sim is False:	
-			str='[%(X)04d] at (X=%(XC)8.3f): diode1 %(d1)10.7e, diode2  %(d2)10.7e, diode3  %(d3)10.7e, diode4  %(d4)10.7e, ROI %(roi)10d'%{"X":Ncol,"XC":xmot_cur.get(), "d1":diode1_read, "d2":diode2_read, "d3":diode3_read,"d4":diode4_read,'roi':ROIint}		
+			str='[%(X)04d] at (X= %(XC)8.3f ): diode1 %(d1)10.7e, diode2  %(d2)10.7e, diode3  %(d3)10.7e, diode4  %(d4)10.7e, ROI %(roi)10d'%{"X":Ncol,"XC":xmot_cur.get(), "d1":diode1_read, "d2":diode2_read, "d3":diode3_read,"d4":diode4_read,'roi':ROIint}		
 	
 			print str
 			fp.write(str)
 			fp.write('\n')
 		else:
-			str=' [%(X)04d] at (X=%(XC)8.3f)'%{"X":Ncol,"XC":tar[0][0]}
+			str=' [%(X)04d] at (X= %(XC)8.3f )'%{"X":Ncol,"XC":tar[0][0]}
 			print str
 			fp.write(str)
 			fp.write('\n')

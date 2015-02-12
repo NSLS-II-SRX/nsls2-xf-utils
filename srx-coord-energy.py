@@ -193,6 +193,10 @@ def main(argv=None):
 	gmot = PV('XF:05IDA-OP:1{Mono:HDCM-Ax:X2}Mtr.VAL')
 	gmot_cur = PV('XF:05IDA-OP:1{Mono:HDCM-Ax:X2}Mtr.RBV')
 	gmot_stop = PV('XF:05IDA-OP:1{Mono:HDCM-Ax:X2}Mtr.STOP')
+	traj_o_x=PV('SR:C31-{AI}Aie5-2:Offset-x-Cal')
+	traj_o_y=PV('SR:C31-{AI}Aie5-2:Offset-y-Cal')
+	traj_a_x=PV('SR:C31-{AI}Aie5-2:Angle-x-Cal')
+	traj_a_y=PV('SR:C31-{AI}Aie5-2:Angle-y-Cal')
 	
 	if detstr=='xf05bpm03':
 		det0 = PV(detstr+':DataRead_Ch1')
@@ -274,6 +278,26 @@ def main(argv=None):
 			tar[0][1]=0
 			tar[1][1]=0
 			tar[2][1]=0
+		try:
+			ox=traj_o_x.get()
+		except CA.Client.Exception:
+			ox=12398
+			continue
+		try:
+			oy=traj_o_y.get()
+		except CA.Client.Exception:
+			oy=12398
+			continue
+		try:
+			ax=traj_a_x.get()
+		except CA.Client.Exception:
+			ax=12398
+			continue
+		try:
+			ay=traj_a_y.get()
+		except CA.Client.Exception:
+			ay=12398
+			continue
 		while (tar[0][1] == 1) or (tar[1][1] == 1) or(tar[2][1] == 1):
 			time.sleep(0.05)
 			if LN > 50:
@@ -287,7 +311,7 @@ def main(argv=None):
 			signal1=float(det1.get())
 			signal2=float(det2.get())
 			signal3=float(det3.get())
-			if signal0==0.:
+			if signal0<1e-10:
 				time.sleep(0.01)
 				signal0=float(det0.get())
 				signal1=float(det1.get())
@@ -299,12 +323,12 @@ def main(argv=None):
 			signal2=0.
 			signal3=0.
 		if options.sim is False:	
-			str=' B= %(B)8.3f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e'%{"B":float(bmot_cur.get()), "U":float(umot_cur.get()), "G":float(gmot_cur.get()), "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3}
+			str=' B= %(B)8.3f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f'%{"B":float(bmot_cur.get()), "U":float(umot_cur.get()), "G":float(gmot_cur.get()), "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3, "OX":ox,"AX":ax,"OY":oy,"AY":ay}
 			print str
 			fp.write(str)
 			fp.write('\n')
 		else:
-			str=' B= %(B)8.3f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e'%{"B":tar[0][0], "U":tar[1][0], "G":tar[2][0], "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3} 
+			str=' B= %(B)8.3f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f'%{"B":tar[0][0], "U":tar[1][0], "G":tar[2][0], "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3, "OX":ox,"AX":ax,"OY":oy,"AY":ay} 
 			print str
 			fp.write(str)
 			fp.write('\n')

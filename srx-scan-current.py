@@ -162,6 +162,10 @@ def main(argv=None):
 	else:
 		undpv=False
 	#transmission
+	traj_o_x=PV('SR:C31-{AI}Aie5-2:Offset-x-Cal')
+	traj_o_y=PV('SR:C31-{AI}Aie5-2:Offset-y-Cal')
+	traj_a_x=PV('SR:C31-{AI}Aie5-2:Angle-x-Cal')
+	traj_a_y=PV('SR:C31-{AI}Aie5-2:Angle-y-Cal')
 	if undpv is False:
 		xmot = PV(xmotstr+'Mtr.VAL')
 		xmot_cur = PV(xmotstr+'Mtr.RBV')
@@ -242,6 +246,26 @@ def main(argv=None):
 				xmot_stop.put(0)
 		else:
 			tar[0][1]=0
+		try:
+			ox=traj_o_x.get()
+		except CA.Client.Exception:
+			ox=12398
+			continue
+		try:
+			oy=traj_o_y.get()
+		except CA.Client.Exception:
+			ox=12398
+			continue
+		try:
+			ay=traj_a_y.get()
+		except CA.Client.Exception:
+			ay=12398
+			continue
+		try:
+			ax=traj_a_x.get()
+		except CA.Client.Exception:
+			ax=12398
+			continue
 		while (tar[0][1] == 1):
 			if LN>1000:
 				LN=0
@@ -263,12 +287,12 @@ def main(argv=None):
 			print "bang"
 			signal=0.
 		if options.sim is False:	
-			str=' [%(X)04d] at (X=%(XC)8.3f): signal is %(RI)10.7e '%{"X":Ncol,"XC":xmot_cur.get(), "RI":signal}
+			str=' [%(X)04d] at (X= %(XC)8.3f ): signal is %(RI)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f'%{"X":Ncol,"XC":xmot_cur.get(), "RI":signal, "OX":ox,"AX":ax,"OY":oy,"AY":ay}
 			print str
 			fp.write(str)
 			fp.write('\n')
 		else:
-			str=' [%(X)04d] at (X=%(XC)8.3f)'%{"X":Ncol,"XC":tar[0][0]}
+			str=' [%(X)04d] at (X= %(XC)8.3f )'%{"X":Ncol,"XC":tar[0][0]}
 			print str
 			fp.write(str)
 			fp.write('\n')

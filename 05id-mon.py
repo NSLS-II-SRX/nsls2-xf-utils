@@ -140,7 +140,7 @@ tlist={#
  '03 T_BC2':['XF:05IDA-OP:1{Mir:1}T:MskWtrOut-I',29.8,30.5],\
  '04 T_HFM':['XF:05IDA-OP:1{BS:WB}T:B-I',29.8,30.5],\
  '05 T_DCM':['XF:05IDA-OP:1{BS:PB}T:B-I',29.8,30.5],\
- '06 T_BPM1':['XF:05IDA-OP:1{Mono:HDCM}T:09-I',-173.,-165.],\
+ '06 T_BPM1':['XF:05IDA-OP:1{Mono:HDCM}T:LN2Out-I',-173.,-165.],\
  '07 T_SH-A':['XF:05IDA-OP:1{Mono:HDCM-Ax:P}T-I',120.,140.] 
 }
 itlist=dict((tlist[j][0],j) for j in tlist.keys())
@@ -318,6 +318,8 @@ def main(argv=None):
 		else:
 			gvalarm[name]=ok_str
 		ID05gv.add_callback(gvlist[name],cbfgv)
+	#force an update at least once every 30 sec
+	t_old=time.time()
 	while True:
 		if pending_update==True:
 			fflag_fe=fflag_a=fflag_b=fflag_d=False
@@ -451,6 +453,9 @@ def main(argv=None):
 			sys.stdout.write(istr)
 			sys.stdout.flush()
 		epics.poll(evt=1.e-3,iot=0.1)
+		if (time.time()-t_old) > 30.:
+			t_old=time.time()
+			pending_update=True
 
 if __name__ == "__main__":
 	sys.exit(main())
