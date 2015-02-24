@@ -1,4 +1,4 @@
-#! /usr/bin/env /usr/bin/python2.7
+#! /usr/bin/env /usr/bin/python2.7 
 #backwards compatible (i.e., reverts to X raster move Y, hfm, vhm scan if no Z 
 #values given) three dimensional fast mirror scan.  Scan is likely to be very 
 #fast with respect to motor heating issues.  use --wait command line option
@@ -75,8 +75,6 @@ global shut_open
 shut_open = False
 global current
 current = False
-global T_stop
-T_stop = False
 
 def cbf_shut(pvname=None,value=None,char_value=None,type=None,enum_strs=None,**kw):
 	global shut_open
@@ -108,11 +106,10 @@ def cbfz(pvname=None,value=None,char_value=None,type=None,enum_strs=None,**kw):
 		tar[2][1] = 1
 def cbf_temp(pvname=None,value=None,char_value=None,type=None,enum_strs=None,**kw):
 	thresh_temp=80.
-	global T_stop
-	if (value > thresh_temp):
-		T_stop=True
-	else:
-		T_stop=False
+	while(value > thresh_temp):
+		print "Temperature is too high.  Pausing scan."
+		time.sleep(60.)
+
 #manual deadband
 def indeadband(com,act,dbd):
 	if math.fabs(math.fabs(com)-math.fabs(act))<float(dbd):
@@ -125,7 +122,6 @@ def main(argv=None):
 	global fp
 	global shut_open
 	global current
-	global T_stop
 
 	#parse command line options
 	usage = "usage: %prog [options]\nData files are written to /data/<year>/<month>/<day>/"
@@ -241,6 +237,12 @@ def main(argv=None):
 		det1 = PV(detstr+'Cur:I1-I')
 		det2 = PV(detstr+'Cur:I2-I')
 		det3 = PV(detstr+'Cur:I3-I')
+	detstr='XF:05IDA-BI:1{FS:1-Cam:1}'
+	i0_acq = PV(detstr+'Acquire')
+	i0_exp = PV(detstr+'AcquireTime')
+	i0_ROI_int = PV(detstr+'Stats1:Total_RBV')
+	i0_imode = PV(detstr+'ImageMode')
+
 
 	bmot.info
 	bmot_cur.info
@@ -255,7 +257,11 @@ def main(argv=None):
 	det1.info
 	det2.info
 	det3.info
+	i0_acq.info
+	i0_exp.info
+	i0_ROI_int.info
 	bragg_temp.info
+
 
 	bmot_cur.add_callback(cbfx)
 	bmot_cur.run_callbacks()
@@ -274,9 +280,12 @@ def main(argv=None):
 		twait = 0.
 	else:
 		twait = options.stall
+	if i0_acq.get() is not 0:
+		i0_acq.put(1)
+	i0_imode.put(0)
 
 #	display_list = np.zeros((pN+1,2))
-#	count=0
+	count=0
 
 	str='Start time is '+time.asctime()
 	print str
@@ -294,6 +303,7 @@ def main(argv=None):
 	fp.write('\n')
 	time.sleep(2)
 	LN=0
+	IOint=0
 	for x in range(0,pN):
 		tar[0][1] = 1
 		tar[0][0] = float(angle[x])
@@ -346,20 +356,24 @@ def main(argv=None):
 			else:
 				LN=LN+1
 		if options.sim is False:
-			time.sleep(twait)
-			while ( options.checkbeam and (shut_open == False or beam_current == False)) or T_stop==True:
-				print "Stopped.  Waiting for scan conditions to return to normal."
+			while ( options.checkbeam and (shut_open == False or beam_current == False)):
+				print "Stopped.  Waiting for beam to return."
 				time.sleep(60.)
 			signal0=float(det0.get())
 			signal1=float(det1.get())
 			signal2=float(det2.get())
 			signal3=float(det3.get())
+			i0_acq.put(1)
 			if signal0<1e-10:
 				time.sleep(0.01)
 				signal0=float(det0.get())
 				signal1=float(det1.get())
 				signal2=float(det2.get())
 				signal3=float(det3.get())
+			time.sleep(twait)
+			while (i0_acq.get()==1):
+				time.sleep(io_exp.get())
+			I0int=float(i0_ROI_int.get())
 		else:
 			while ( options.checkbeam and (shut_open == False or beam_current == False)):
 				print "Stopped.  Waiting for beam to return."
@@ -369,7 +383,7 @@ def main(argv=None):
 			signal2=0.
 			signal3=0.
 		if options.sim is False:	
-			str=' B= %(B)8.3f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f %(T)d'%{"B":float(bmot_cur.get()), "U":float(umot_cur.get()), "G":float(gmot_cur.get()), "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3, "OX":ox,"AX":ax,"OY":oy,"AY":ay, 'T':time.time()}
+			str=' B= %(B)8.3f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f %(T)d %(IO)10.7e'%{"B":float(bmot_cur.get()), "U":float(umot_cur.get()), "G":float(gmot_cur.get()), "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3, "OX":ox,"AX":ax,"OY":oy,"AY":ay, 'T':time.time(), 'IO':I0int}
 			print str
 			fp.write(str)
 			fp.write('\n')
@@ -381,7 +395,7 @@ def main(argv=None):
 
 #			display_list[count,0] = x
 #			display_list[count,1] = signal0
-#			count = count+1
+			count = count+1
 
 
 	#return to starting positions

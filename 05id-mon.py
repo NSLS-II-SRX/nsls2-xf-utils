@@ -1,4 +1,4 @@
-#! /usr/bin/python2.7
+#! /usr/bin/env /usr/bin/python2.7
 import os
 import epics
 import numpy

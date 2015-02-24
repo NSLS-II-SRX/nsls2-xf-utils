@@ -60,8 +60,6 @@ tar = []
 tar.append([])
 tar[0].append(0.)
 tar[0].append(1)
-#deadband in motor units 
-dbd = .001
 #simulate motor moves
 simulate=False
 
@@ -81,6 +79,8 @@ def main(argv=None):
 	global dbd
 	global simulate
 	global fp
+	#deadband in motor units 
+	dbd = .001
 
 	#parse command line options
 	usage = "usage: %prog [options]\nData files are written to /data/<year>/<month>/<day>/"
@@ -90,6 +90,7 @@ def main(argv=None):
 	parser.add_option("--xstart", action="store", type="float", dest="xo", help="starting X position")
 	parser.add_option("--xnumstep", action="store", type="int", dest="Nx", help="number of steps in X")
 	parser.add_option("--xstepsize", action="store", type="float", dest="dx", help="step size in X")
+	parser.add_option("--deadband", action="store", type="float", dest="dbd", help="software deadband for motion, default is 0.001 motor units")
 	parser.add_option("--wait", action="store", type="float", dest="stall", help="wait at each step [seconds]")
 	parser.add_option("--simulate", action="store_true", dest="sim", default=False, help="simulate motor moves and bursting")
 
@@ -161,6 +162,8 @@ def main(argv=None):
 		undpv=True
 	else:
 		undpv=False
+	if options.dbd is not None:
+		dbd=options.dbd
 	#transmission
 	traj_o_x=PV('SR:C31-{AI}Aie5-2:Offset-x-Cal')
 	traj_o_y=PV('SR:C31-{AI}Aie5-2:Offset-y-Cal')
@@ -287,7 +290,7 @@ def main(argv=None):
 			print "bang"
 			signal=0.
 		if options.sim is False:	
-			str=' [%(X)04d] at (X= %(XC)8.3f ): signal is %(RI)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f'%{"X":Ncol,"XC":xmot_cur.get(), "RI":signal, "OX":ox,"AX":ax,"OY":oy,"AY":ay}
+			str=' [%(X)04d] at (X= %(XC)9.4f ): signal is %(RI)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f'%{"X":Ncol,"XC":xmot_cur.get(), "RI":signal, "OX":ox,"AX":ax,"OY":oy,"AY":ay}
 			print str
 			fp.write(str)
 			fp.write('\n')

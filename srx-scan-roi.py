@@ -1,4 +1,4 @@
-#! /usr/bin/env python 
+#! /usr/bin/env /usr/bin/python2.7
 #backwards compatible (i.e., reverts to X raster move Y, hfm, vhm scan if no Z 
 #values given) three dimensional fast mirror scan.  Scan is likely to be very 
 #fast with respect to motor heating issues.  use --wait command line option

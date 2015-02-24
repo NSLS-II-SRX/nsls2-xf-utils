@@ -1,6 +1,9 @@
-#! /usr/bin/env /usr/bin/python2.7
-#original gjw
-#modified ycchen
+#! /usr/bin/env /usr/bin/python2.7 
+#backwards compatible (i.e., reverts to X raster move Y, hfm, vhm scan if no Z 
+#values given) three dimensional fast mirror scan.  Scan is likely to be very 
+#fast with respect to motor heating issues.  use --wait command line option
+#if two transverse stages are scanned with sub-millimeter steps
+#add file logging
 
 import signal
 import sys
@@ -83,7 +86,7 @@ def main(argv=None):
 	usage = "usage: %prog [options]\nData files are written to /data/<year>/<month>/<day>/"
 	parser = OptionParser(usage)
 	parser.add_option("--motname", action="store", type="string", dest="motname", help="motor to scan")
-	parser.add_option("--detname", action="store", type="string", dest="detname", help="detector groups: wb, pb, bpm1, bpm2")
+	parser.add_option("--detname", action="store", type="string", dest="detname", help="detector to trigger")
 	parser.add_option("--xstart", action="store", type="float", dest="xo", help="starting X position")
 	parser.add_option("--xnumstep", action="store", type="int", dest="Nx", help="number of steps in X")
 	parser.add_option("--xstepsize", action="store", type="float", dest="dx", help="step size in X")
@@ -99,39 +102,37 @@ def main(argv=None):
 	D3=time.localtime()[3]
 	D4=time.localtime()[4]
 	cd=os.getcwd()
-	
-	filedir = '/nfs/xf05id1/data/' 
-	
+	fstr='/nfs/xf05id1/data/'
 	if sys.argv[0][0]=='.':
-		out_filename=filedir+repr(D0)+'/'+repr(D1)+'/'+repr(D2)+'/'+'log_'+repr(D3)+'_'+repr(D4)+'_'+\
+		out_filename=fstr+repr(D0)+'/'+repr(D1)+'/'+repr(D2)+'/'+'log_'+repr(D3)+'_'+repr(D4)+'_'+\
 		 string.split(string.strip(sys.argv[0],'./'),'/')[0]+'.txt'
 	else:
-		out_filename=filedir+repr(D0)+'/'+repr(D1)+'/'+repr(D2)+'/'+'log_'+repr(D3)+'_'+repr(D4)+'_'+\
+		out_filename=fstr+repr(D0)+'/'+repr(D1)+'/'+repr(D2)+'/'+'log_'+repr(D3)+'_'+repr(D4)+'_'+\
 		 string.split(string.strip(sys.argv[0],'./'),'/')[5]+'.txt'
 	try:
-		os.chdir(filedir+repr(D0))
+		os.chdir(fstr+repr(D0))
 	except OSError:
 		try:	
-			os.mkdir(filedir+repr(D0))
+			os.mkdir(fstr+repr(D0))
 		except Exception:
-			print 'cannot create directory: '+'/data/'+repr(D0)
+			print 'cannot create directory: '+fstr+repr(D0)
 			sys.exit()
 
 	try:
-		os.chdir(filedir+repr(D0)+'/'+repr(D1))
+		os.chdir(fstr+repr(D0)+'/'+repr(D1))
 	except OSError:
 		try:
-			os.mkdir(filedir+repr(D0)+'/'+repr(D1))
+			os.mkdir(fstr+repr(D0)+'/'+repr(D1))
 		except Exception:
-			print 'cannot create directory: '+'/data/'+repr(D0)+'/'+repr(D1)
+			print 'cannot create directory: '+fstr+repr(D0)+'/'+repr(D1)
 			sys.exit()
 	try:
-		os.chdir(filedir+repr(D0)+'/'+repr(D1)+'/'+repr(D2))
+		os.chdir(fstr+repr(D0)+'/'+repr(D1)+'/'+repr(D2))
 	except OSError:
 		try:
-			os.mkdir(filedir+repr(D0)+'/'+repr(D1)+'/'+repr(D2))
+			os.mkdir(fstr+repr(D0)+'/'+repr(D1)+'/'+repr(D2))
 		except Exception:
-			print 'cannot create directory: '+filedir+repr(D0)+'/'+repr(D1)+'/'+repr(D2)
+			print 'cannot create directory: '+fstr+repr(D0)+'/'+repr(D1)+'/'+repr(D2)
 			sys.exit()
 	try:
 		fp=open(out_filename,'a')
@@ -155,70 +156,30 @@ def main(argv=None):
 		print "must provide detector pv base, e.g., 'XF:28IDA-BI{URL:01}'"
 		sys.exit()
 	else:
-		#detstr=options.detname
-		slitoption=options.detname
-		if slitoption == 'wb':
-			diode1='XF:05IDA-BI{BPM:01}AH501:Current1'
-			diode2='XF:05IDA-BI{BPM:01}AH501:Current2'
-			diode3='XF:05IDA-BI{BPM:01}AH501:Current3'
-			diode4='XF:05IDA-BI{BPM:01}AH501:Current4'
-			det_acqname='XF:05IDA-BI:1{FS:1-Cam:1}Acquire'
-			det_expname='XF:05IDA-BI:1{FS:1-Cam:1}AcquireTime'
-			det_ROI_intname='XF:05IDA-BI:1{FS:1-Cam:1}Stats1:Total_RBV'
-			det_imodename='XF:05IDA-BI:1{FS:1-Cam:1}ImageMode'
-		elif slitoption == 'pb':
-                        diode1='XF:05IDA-BI{BPM:02}AH501:Current1'
-                        diode2='XF:05IDA-BI{BPM:02}AH501:Current2'
-                        diode3='XF:05IDA-BI{BPM:02}AH501:Current3'
-                        diode4='XF:05IDA-BI{BPM:02}AH501:Current4'
-			det_acqname='XF:05IDA-BI:1{BPM:1-Cam:1}Acquire'
-			det_expname='XF:05IDA-BI:1{BPM:1-Cam:1}AcquireTime'
-			det_ROI_intname='XF:05IDA-BI:1{BPM:1-Cam:1}Stats1:Total_RBV'
-			det_imodename='XF:05IDA-BI:1{BPM:1-Cam:1}ImageMode'
-		elif slitoption =='bpm1':
-			diode1='XF:05IDA{IM:1}Cur:I0-I'
-			diode2='XF:05IDA{IM:1}Cur:I1-I'
-			diode3='XF:05IDA{IM:1}Cur:I2-I'
-			diode4='XF:05IDA{IM:1}Cur:I3-I'
-		elif slitoption =='bpm2':
-			diode0='XF:05IDA{IM:1}Cur:I0-I'
-			diode1='XF:05IDA-BI{BPM:05}AH501:Current1:MeanValue_RBV'
-			diode2='XF:05IDA-BI{BPM:05}AH501:Current2:MeanValue_RBV'
-			diode3='XF:05IDA-BI{BPM:05}AH501:Current3:MeanValue_RBV'
-			diode4='XF:05IDA-BI{BPM:05}AH501:Current4:MeanValue_RBV'
-		else:
-			print 'specify reading slits e.g. wb'
-
-	#transmission
-	xmot = PV(xmotstr+'Mtr.VAL')
-	xmot_cur = PV(xmotstr+'Mtr.RBV')
-	xmot_stop = PV(xmotstr+'Mtr.STOP')
-	if slitoption=='bpm1':
-		diode1_pv = PV(diode1)
-		diode2_pv = PV(diode2)
-		diode3_pv = PV(diode3)
-		diode4_pv = PV(diode4)
-	elif slitoption=='bpm2':
-		diode0_pv = PV(diode0)
-		diode1_pv = PV(diode1)
-		diode2_pv = PV(diode2)
-		diode3_pv = PV(diode3)
-		diode4_pv = PV(diode4)
+		detstr=options.detname
+	if xmotstr.rsplit('{')[1].rsplit('}')[0] == 'IVU21:1-Mtr:2':
+		undpv=True
 	else:
-		det_acq=PV(det_acqname)
-		det_exp=PV(det_expname)
-		det_ROI_int=PV(det_ROI_intname)
-		det_imode=PV(det_imodename)
-		diode1_pv = PV(diode1+':MeanValue_RBV')
-		diode2_pv = PV(diode2+':MeanValue_RBV')
-		diode3_pv = PV(diode3+':MeanValue_RBV')
-		diode4_pv = PV(diode4+':MeanValue_RBV')
-		if det_acq.get() is not 0:
-			det_acq.put(1)
-		det_imode.put(0)
+		undpv=False
+	#transmission
+	traj_o_x=PV('SR:C31-{AI}Aie5-2:Offset-x-Cal')
+	traj_o_y=PV('SR:C31-{AI}Aie5-2:Offset-y-Cal')
+	traj_a_x=PV('SR:C31-{AI}Aie5-2:Angle-x-Cal')
+	traj_a_y=PV('SR:C31-{AI}Aie5-2:Angle-y-Cal')
+	if undpv is False:
+		xmot = PV(xmotstr+'Mtr.VAL')
+		xmot_cur = PV(xmotstr+'Mtr.RBV')
+		xmot_stop = PV(xmotstr+'Mtr.STOP')
+	else:
+		xmot = PV(xmotstr+'Inp:Pos')
+		xmot_cur = PV(xmotstr.rsplit('{')[0]+'{IVU21:1-LEnc}Gap')
+		xmot_stop = PV(xmotstr+'Sw:Go')
+	det_acq = PV(detstr+'Int-I')
+
 	xmot_cur.get(as_string = True)
 	xmot_cur.add_callback(cbfx)
 	xmot_cur.run_callbacks()
+	det_acq.info
 	#check command line options
 	if options.xo == None:
 		xo = xmot_cur.get()
@@ -237,8 +198,7 @@ def main(argv=None):
 	else:
 		twait = options.stall
 
-	display_list = np.zeros((Nx+1,5))
-
+	display_list = np.zeros((Nx+1,2))
 
 	str='Start time is '+time.asctime()
 	print str
@@ -281,49 +241,53 @@ def main(argv=None):
 			tar[0][1] = 0
 		if options.sim is False:
 			xmot.put(tar[0][0])
+			if undpv ==True:
+				time.sleep(0.5)
+				xmot_stop.put(0)
 		else:
 			tar[0][1]=0
+		try:
+			ox=traj_o_x.get()
+		except CA.Client.Exception:
+			ox=12398
+			continue
+		try:
+			oy=traj_o_y.get()
+		except CA.Client.Exception:
+			ox=12398
+			continue
+		try:
+			ay=traj_a_y.get()
+		except CA.Client.Exception:
+			ay=12398
+			continue
+		try:
+			ax=traj_a_x.get()
+		except CA.Client.Exception:
+			ax=12398
+			continue
 		while (tar[0][1] == 1):
 			if LN>1000:
 				LN=0
 				xmot.put(tar[0][0])
 				LN=LN+1
 				xmot.info
+				if xmot.severity == 2:
+					str="\t scan stopped at "+xmot_cur.get()
+					print str
+					fp.write(str)
+					fp.write('\n')
+					raw_input("clear motor error and press enter (or ctrl-C to halt)")
+					xmot.put(tar[0][0])
+					time.sleep(twait)
 		if options.sim is False:
-
 			time.sleep(twait)
-			if slitoption=='bpm1':
-				diode1_read=diode1_pv.get()			
-				diode2_read=diode2_pv.get()			
-				diode3_read=diode3_pv.get()			
-				diode4_read=diode4_pv.get()			
-			elif slitoption=='bpm2':
-				ROIint=diode1_read=diode2_read=diode3_read=diode4_read=0.
-				while ROIint ==0.:
-					ROIint=diode0_pv.get()			
-				while diode1_read==0.:
-					diode1_read=diode1_pv.get()			
-				while diode2_read==0.:
-					diode2_read=diode2_pv.get()			
-				while diode3_read==0.:
-					diode3_read=diode3_pv.get()			
-				while diode4_read==0.:
-					diode4_read=diode4_pv.get()			
-			else:
-				diode1_read = diode1_pv.get()
-				diode2_read = diode2_pv.get()
-				diode3_read = diode3_pv.get()
-               		        diode4_read = diode4_pv.get()
-				det_acq.put(1)
-				while det_acq.get()==1:
-					time.sleep(det_exp.get())
-				time.sleep(twait)
-				ROIint=float(det_ROI_int.get())
+			signal=float(det_acq.get())
 		else:
 			print "bang"
+			signal=0.
 		if options.sim is False:	
-			str='[%(X)04d] at (X= %(XC)8.3f ): diode1 %(d1)10.7e, diode2  %(d2)10.7e, diode3  %(d3)10.7e, diode4  %(d4)10.7e, ROI %(roi)10d'%{"X":Ncol,"XC":xmot_cur.get(), "d1":diode1_read, "d2":diode2_read, "d3":diode3_read,"d4":diode4_read,'roi':ROIint}		
-	
+			str=' [%(X)04d] at (X= %(XC)8.3f ): signal is %(RI)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f'%{"X":Ncol,"XC":xmot_cur.get(), "RI":signal, "OX":ox,"AX":ax,"OY":oy,"AY":ay}
 			print str
 			fp.write(str)
 			fp.write('\n')
@@ -332,21 +296,9 @@ def main(argv=None):
 			print str
 			fp.write(str)
 			fp.write('\n')
-
 		Ncol=Ncol+1
-		if options.sim is False:
-			display_list[count,0] = xmot_cur.get()
-			display_list[count,1] = diode1_read
-			display_list[count,2] = diode2_read
-			display_list[count,3] = diode3_read
-			display_list[count,4] = diode4_read
-		else:
-			display_list[count,0] = tar[0][0]
-			display_list[count,1] = 0. 
-			display_list[count,2] = 0.
-			display_list[count,3] = 0.
-			display_list[count,4] = 0.
-			
+		display_list[count,0] = x
+		display_list[count,1] = signal 
 		count = count+1
 
 
@@ -354,6 +306,9 @@ def main(argv=None):
 	if options.sim is False:
 		xmot.put(xo)
 		time.sleep(0.01)
+		if undpv ==True:
+			time.sleep(0.5)
+			xmot_stop.put(0)
 
 	str='End time is '+time.asctime()
 	print str
@@ -361,16 +316,10 @@ def main(argv=None):
 	fp.write('\n')
 	fp.close()
 
-#	plt.figure()
-	#plt.plot(display_list[:,0],display_list[:,1])
-	
-#	plt.plot(display_list[:,0],display_list[:,1],color='r')
-#	plt.plot(display_list[:,0],display_list[:,1],'go')
-#	plt.plot(display_list[:,0],display_list[:,2],color='g')
-#	plt.plot(display_list[:,0],display_list[:,3],color='b')
-#	plt.plot(display_list[:,0],display_list[:,4],color='k') 
- 
-#	plt.show()
+	plt.figure()
+	plt.plot(display_list[:,0],display_list[:,1])
+	plt.plot(display_list[:,0],display_list[:,1],'go')
+	plt.show()
 	return 0
 
 if __name__ == "__main__":

@@ -30,6 +30,13 @@ class nsls2slit():
 				self.OB0=-5.065
 				self.TB0=0.
 #				print "This is SRX's first pink beam slit."
+			elif (kwargs['ib'].split(':')[1][:5]=='05IDB') and\
+			 (kwargs['ib'].split('{')[1][:7]=='Slt:SSA'):
+				self.BB0=-3.6
+				self.IB0=-1.2
+				self.OB0=-3.8
+				self.TB0=-0.7
+#				print "This is SRX's secondary source aperture."
 			else:
 				self.BB0=0.
 				self.IB0=0.

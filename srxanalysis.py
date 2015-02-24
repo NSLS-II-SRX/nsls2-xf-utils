@@ -1,26 +1,26 @@
 import numpy
 import string
 from matplotlib import pyplot
-import os
+import subprocess 
 
 def plotscan(scan,**kwargs):
 	fp=open(scan,'r')
 	line=fp.readline()
 	length=0
+	TWOTHREE=False	
 	if kwargs.has_key('lines'):
 		length=int(kwargs['lines'])
 	for i in range(0,len(line.split(','))):
 		if line.split(',')[i][:9]==' --xnumst':
 			print i, line.split(',')[i], line.split(',')[i].split('=')[1]
-			length=int(line.split(',')[i].split('=')[1])
+			length=int(line.replace('\n','').split(',')[i].split('=')[1])
 		if line.split(',')[i][:9]==' --config' and not kwargs.has_key('lines'):
-			tmp='wc -l '+line.split(',')[i].split('=')[1]
-			tmp=os.system(tmp)
+			tmp=subprocess.check_output(['wc','-l',line.replace('\n','').split(',')[i].split('=')[1]])
 			length=int(tmp.split()[0])
+			TWOTHREE=True
 	if length==0:
 		print "failed to find length"
 		return 1
-	fp.readline()
 	fp.readline()
 	fp.readline()
 	offset=fp.tell()
@@ -49,11 +49,13 @@ def plotscan(scan,**kwargs):
 			dyaxis[i]=(yaxis[i+1]-yaxis[i])/(xaxis[i+1]-xaxis[i])
 		print "Deriv. max value is ",dyaxis.max()," at ", dxaxis[dyaxis.argmax()]
 		print "Deriv. min value is ",dyaxis.min()," at ", dxaxis[dyaxis.argmin()]
-		pyplot.plot(dxaxis,dyaxis,'+')
+		p=pyplot.plot(dxaxis,dyaxis,'+')
+		pyplot.show()
+		return dxaxis,dyaxis
 	else:
 		print "Signal max value is ",yaxis.max()," at ", xaxis[yaxis.argmax()]
 		print "Signal min value is ",yaxis.min()," at ", xaxis[yaxis.argmin()]
-		pyplot.plot(xaxis,yaxis,'+')
-	pyplot.show()
+		p=pyplot.plot(xaxis,yaxis,'+')
+		pyplot.show()
+		return xaxis,yaxis
 
-	return 0

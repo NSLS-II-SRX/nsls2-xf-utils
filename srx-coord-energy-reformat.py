@@ -354,7 +354,7 @@ def main(argv=None):
 			signal1=float(det1.get())
 			signal2=float(det2.get())
 			signal3=float(det3.get())
-			if signal0<1e-10:
+			if signal0<1e-11:
 				time.sleep(0.01)
 				signal0=float(det0.get())
 				signal1=float(det1.get())
