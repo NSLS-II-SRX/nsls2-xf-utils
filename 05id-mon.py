@@ -145,8 +145,16 @@ tlist={#
 }
 itlist=dict((tlist[j][0],j) for j in tlist.keys())
 
+shutlist={#0 open, 1 closed
+ '00':'XF:05ID-PPS{Sh:WB}Sts:Open-Sts',\
+ '07':'XF:05IDA-PPS:1{PSh:2}Sts:Open-Sts',\
+ '12':'XF:05IDB-PPS:1{PSh:4}Sts:Open-Sts'\
+}
+ishutlist=dict((shutlist[j],j) for j in shutlist.keys())
 #initialize alarm arrays.  0 is no fault, 1 is minor fault, 2 is severe fault
 gvalarm=dict.fromkeys(gvlist.keys(),numpy.zeros((len(gvlist),),dtype=int))
+#init shutter alarm
+shalarm=dict.fromkeys(shutlist.keys(),numpy.zeros((len(shutlist),),dtype=int))
 #erralarm=dict.fromkeys(errlist.keys(),numpy.zeros((len(errlist),),dtype=int))
 erralarm={k: [] for k in errlist.keys()}
 ccgalarm=dict.fromkeys(ccglist.keys(),numpy.zeros((len(ccglist),),dtype=float))
@@ -196,6 +204,17 @@ def cbfgv(pvname=None,value=None,char_value=None,type=None,enum_strs=None,**kw):
 	else:
 		gvalarm[igvlist[pvname]]=ok_str
 	if oldvalue is not gvalarm[igvlist[pvname]]:
+		pending_update=True
+def cbfsh(pvname=None,value=None,char_value=None,type=None,enum_strs=None,**kw):
+	global shalarm
+	global ishutlist
+	global pending_update
+	oldvalue=shalarm[ishutlist[pvname]]
+	if value == 0:
+		shalarm[ishutlist[pvname]]=ok_str
+	else:
+		shalarm[ishutlist[pvname]]=ee_str
+	if oldvalue is not shalarm[ishutlist[pvname]]:
 		pending_update=True
 def cbferr(pvname=None,value=None,char_value=None,type=None,enum_strs=None,**kw):
 	global erralarm
@@ -318,6 +337,17 @@ def main(argv=None):
 		else:
 			gvalarm[name]=ok_str
 		ID05gv.add_callback(gvlist[name],cbfgv)
+	#pyepics device consisting of all shutters
+	ID05sh=epics.Device()
+	for name in shutlist.keys():
+		ID05sh.add_pv(shutlist[name])
+		time.sleep(0.03)
+		ID05sh.PV(shutlist[name]).info
+		if ID05sh.get(shutlist[name]) == 0:
+			shalarm[name]=ok_str
+		else:
+			shalarm[name]=ee_str
+		ID05sh.add_callback(shutlist[name],cbfsh)
 	#force an update at least once every 30 sec
 	t_old=time.time()
 	while True:
@@ -423,6 +453,12 @@ def main(argv=None):
 				Ngv=Ngv+1
 			table=terminaltables.UnixTable(trow)
 			sys.stdout.write(table.table)
+			if shalarm['00']==ee_str and fflag_fe==False and wflag_fe==False:
+				fflag_fe=True
+			if shalarm['07']==ee_str and fflag_b==False and wflag_b==False:
+				fflag_b=True
+			if shalarm['12']==ee_str and fflag_d==False and wflag_d==False:
+				fflag_d=True
 			nrow=list()
 			if fflag_fe==True:
 				nrow.append(eetext('FRONT END'))
