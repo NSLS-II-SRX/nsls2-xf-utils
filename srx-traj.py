@@ -112,29 +112,27 @@ def main(argv=None):
 	        os.chdir(cd)
 
 
-	tstr="#***\nNew PVs: Offset X = %(OX)6.3f Offset Y = %(OY)6.3f Angle X = %(AX)6.3f Angle Y = %(AY)6.3f"%\
+	tstr="Off X = %(OX)6.3f Off Y = %(OY)6.3f Ang X = %(AX)6.3f Ang Y = %(AY)6.3f"%\
 	{"OX":ox2.get(),"OY":oy2.get(),"AX":ax2.get(),"AY":ay2.get()}
-	print tstr
+	print '\n'+tstr
 	if options.nowrite is not True:
 		fp.write(tstr+'\n')
-	tstr="BBA: Offset 8X = %(OX)6.3f Offset 8Y = %(OY)6.3f Offset 9X = %(AX)6.3f Offset 9Y = %(AY)6.3f\n#***\n"%\
+	tstr="Off 8X = %(OX)6.3f Off 8Y = %(OY)6.3f Off 9X = %(AX)6.3f Off 9Y = %(AY)6.3f"%\
 	{"OX":bba_bmp8x.get(),"OY":bba_bmp8y.get(),"AX":bba_bmp9x.get(),"AY":bba_bmp9y.get()}
 	print tstr
 	if options.nowrite is not True:
 		fp.write(tstr+'\n')
 	tstr="Offset X = %(OX)6.3f Offset Y = %(OY)6.3f Angle X = %(AX)6.3f Angle Y = %(AY)6.3f"%\
 	{"OX":ox.get(),"OY":oy.get(),"AX":ax.get(),"AY":ay.get()}
-	print tstr
 	if options.nowrite is not True:
 		fp.write(tstr+'\n')
-	tstr="FE slits S3-Inb= %(SI)9.5f S3-Top= %(ST)9.5f S4-Out= %(SO)9.5f S4-Bot= %(SB)9.5f"%\
+	tstr="S3-Inb= %(SI)6.3f S3-Top= %(ST)6.3f S4-Out= %(SO)6.3f S4-Bot= %(SB)6.3f"%\
 	{"SI":s3in.get(),"ST":s3top.get(),"SO":s4out.get(),"SB":s4bot.get()}
-	print tstr
+	print tstr+'\n'
 	if options.nowrite is not True:
 		fp.write(tstr+'\n')
 	tstr="FPGA calculated Offset X1 = %(OX)6.3f X2 = %(OX2)6.3f Offset Y1 = %(OY)6.3f Offset Y2 = %(OY2)6.3f\nAngle X1 = %(AX)6.3f Angle X2 = %(AX2)6.3f Angle Y1 = %(AY)6.3f Angle Y2 = %(AY2)6.3f"%\
 	{"OX":fpga_ox1.get(),"OX2":fpga_ox2.get(),"OY":fpga_oy1.get(),"OY2":fpga_oy2.get(), "AX":fpga_ax1.get(),"AX2":fpga_ax2.get(),"AY":fpga_ay1.get(),"AY2":fpga_ay2.get()}
-	print tstr
 	if options.nowrite is not True:
 		fp.write(tstr+'\n')
 		fp.close()
