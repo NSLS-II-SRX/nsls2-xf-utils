@@ -10,6 +10,7 @@ def plotscan(scan,**kwargs):
 	TWOTHREE=False	
 	if kwargs.has_key('lines'):
 		length=int(kwargs['lines'])
+	scname=line.split(',')[0][2:]
 	for i in range(0,len(line.split(','))):
 		if line.split(',')[i][:9]==' --xnumst':
 			print i, line.split(',')[i], line.split(',')[i].split('=')[1]
@@ -20,9 +21,11 @@ def plotscan(scan,**kwargs):
 			TWOTHREE=True
 	if length==0:
 		print "failed to find length"
-		return 1
+		return 2
 	fp.readline()
 	fp.readline()
+	fp.readline()
+#	fp.readline()
 	offset=fp.tell()
 	xaxis=numpy.zeros(length)
 	yaxis=numpy.zeros(length)
@@ -40,8 +43,13 @@ def plotscan(scan,**kwargs):
 	fp.seek(offset)
 	for i in range(0,length):
 		line=fp.readline()
-		xaxis[i]=float(line.split()[x])
-		yaxis[i]=float(line.split()[y])
+		if scname=='srx-scan-slits.py':
+			print line.split()[x]
+			xaxis[i]=float(line.split()[x].strip(','))
+			yaxis[i]=float(line.split()[y].strip(','))
+		else:
+			xaxis[i]=float(line.split()[x])
+			yaxis[i]=float(line.split()[y])
 	fp.close()
 	if kwargs.has_key('derivative'):
 		for i in range(0,length-1):

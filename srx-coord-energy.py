@@ -5,6 +5,9 @@
 #if two transverse stages are scanned with sub-millimeter steps
 #add file logging
 
+#ycchen 03/12/15, modified one line to include current readout from bpm02: if detstr=='xf05bpm03' or detstr=='xf05bpm04':
+
+
 import signal
 import sys
 import os
@@ -107,7 +110,8 @@ def cbfz(pvname=None,value=None,char_value=None,type=None,enum_strs=None,**kw):
 	else:
 		tar[2][1] = 1
 def cbf_temp(pvname=None,value=None,char_value=None,type=None,enum_strs=None,**kw):
-	thresh_temp=80.
+	#thresh_temp=80.
+	thresh_temp = 120.
 	global T_stop
 	if (value > thresh_temp):
 		T_stop=True
@@ -231,7 +235,7 @@ def main(argv=None):
 	beam_current=PV('SR:C03-BI{DCCT:1}I:Total-I')
 	bragg_temp=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:P}T-I')
 	
-	if detstr=='xf05bpm03':
+	if detstr=='xf05bpm03' or detstr=='xf05bpm04':
 		det0 = PV(detstr+':DataRead_Ch1')
 		det1 = PV(detstr+':DataRead_Ch2')
 		det2 = PV(detstr+':DataRead_Ch3')
@@ -340,7 +344,7 @@ def main(argv=None):
 			continue
 		while (tar[0][1] == 1) or (tar[1][1] == 1) or(tar[2][1] == 1):
 			time.sleep(0.05)
-			if LN > 50:
+			if LN > 400:
 				umot_go.put(0)
 				LN=0
 			else:

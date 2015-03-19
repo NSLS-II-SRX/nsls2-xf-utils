@@ -340,7 +340,7 @@ def main(argv=None):
 			continue
 		while (tar[0][1] == 1) or (tar[1][1] == 1) or(tar[2][1] == 1):
 			time.sleep(0.05)
-			if LN > 50:
+			if LN > 400:
 				umot_go.put(0)
 				LN=0
 			else:

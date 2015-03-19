@@ -1,9 +1,11 @@
-#! /usr/bin/env python 
+#! /usr/bin/env /usr/bin/python2.7 
 #backwards compatible (i.e., reverts to X raster move Y, hfm, vhm scan if no Z 
 #values given) three dimensional fast mirror scan.  Scan is likely to be very 
 #fast with respect to motor heating issues.  use --wait command line option
 #if two transverse stages are scanned with sub-millimeter steps
 #add file logging
+
+#by ycchen 03/12/15, change one line: 'det_acq = PV(detstr)' for it to work with bpm1&2 current readout
 
 import signal
 import sys
@@ -177,7 +179,8 @@ def main(argv=None):
 		xmot = PV(xmotstr+'Inp:Pos')
 		xmot_cur = PV(xmotstr.rsplit('{')[0]+'{IVU21:1-LEnc}Gap')
 		xmot_stop = PV(xmotstr+'Sw:Go')
-	det_acq = PV(detstr+'Cur:I0-I')
+#	det_acq = PV(detstr+'Cur:I0-I')
+	det_acq = PV(detstr)  
 
 	xmot_cur.get(as_string = True)
 	xmot_cur.add_callback(cbfx)

@@ -1,6 +1,6 @@
 #! /usr/bin/env /usr/bin/python2.7
 #original gjw
-#modified ycchen
+#modified 2015/03/02 by ycchen, Wayne fixed the SSA blades PV names' assignment. Updated those PV names.
 
 import signal
 import sys
@@ -150,9 +150,12 @@ def main(argv=None):
 	elif options.motname=='pb':
 		slit=srxslit.nsls2slit(ib='XF:05IDA-OP:1{Slt:2-Ax:I}',ob='XF:05IDA-OP:1{Slt:2-Ax:O}')
 	elif options.motname=='ssa':
-		slit=srxslit.nsls2slit(ib='XF:05IDB-OP:1{Slt:SSA-Ax:T}',\
-		 ob='XF:05IDB-OP:1{Slt:SSA-Ax:B}',tb='XF:05IDB-OP:1{Slt:SSA-Ax:O}',\
-		 bb='XF:05IDB-OP:1{Slt:SSA-Ax:I}')
+#		slit=srxslit.nsls2slit(ib='XF:05IDB-OP:1{Slt:SSA-Ax:T}',\
+#		 ob='XF:05IDB-OP:1{Slt:SSA-Ax:B}',tb='XF:05IDB-OP:1{Slt:SSA-Ax:O}',\
+#		 bb='XF:05IDB-OP:1{Slt:SSA-Ax:I}')
+                slit=srxslit.nsls2slit(ib='XF:05IDB-OP:1{Slt:SSA-Ax:I}',\
+                ob='XF:05IDB-OP:1{Slt:SSA-Ax:O}',tb='XF:05IDB-OP:1{Slt:SSA-Ax:T}',\
+                bb='XF:05IDB-OP:1{Slt:SSA-Ax:B}')
 		diode=PV('XF:05IDA{IM:1}Cur:I0-I')
 	else:
 		print "no valid slit options found on command line"
@@ -215,7 +218,7 @@ def main(argv=None):
 	print str
 	fp.write(str)
 	fp.write('\n')
-	str='#[point #]\tX pos\tY pos\tch 1\tch 2\tch 3\tch 4\tbpm ox\tbpm oy\tbpm ax\tbpm ay'
+	str='#[point #]\tX pos\tY pos\tch 1\tch 2\tch 3\tch 4\tbpm ox\tbpm oy\tbpm ax\tbpm ay\tdiff h\tdiff v\tib\tob\tbb\ttp'
 	print str
 	fp.write(str)
 	fp.write('\n')
@@ -239,19 +242,19 @@ def main(argv=None):
 	dir=1
 
 	count = 0
+	sigarray=list()
 	#nested loops for scanning z,x,y
 	for y in np.linspace(yo,yo+((Ny)*dy),Ny+1):
-#	for y in frange(yo,yo+(Ny*dy),dy):
+		sigarry=[]
 		if Nrow%2==0:
-			xs=0+xo
+			xs=0.+xo
 			xe=((Nx+1)*dx)+xo-dx
 			xi=dx
 		else:
 			xs=((Nx)*dx)+xo
-			xe=0+xo
+			xe=0.+xo
 			xi=-dx
 		for x in np.linspace(xs,xe,Nx+1):
-#		for x in frange(xs,xe,xi):
 			if options.sim is False:
 				h=slit.hcen(x)
 				v=slit.vcen(y)
@@ -260,6 +263,7 @@ def main(argv=None):
 			if options.motname=='ssa':
 				while sig == 0.:
 					sig=diode.get()
+					sigarray.append([x,sig])
 			signal0=signal1=signal2=signal3=0.
 			while signal0==0.:
 				signal0=diode0.get()			
@@ -270,7 +274,7 @@ def main(argv=None):
 			while signal3==0.:
 				signal3=diode3.get()			
 			if options.sim is False:
-				str='[%(X)04d] at ( %(XC)8.3f , %(YC)8.3f ): %(d1)10.7e %(d2)10.7e %(d3)10.7e %(d4)10.7e %(ox)6.3f %(oy)6.3f %(ax)6.3f %(ay)6.3f %(in)7.4e %(out)7.4e %(down)7.4e'%{"down":float(sig),"X":Ncol,"XC":float(slit.hcen()), "d1":float(signal0), "d2":float(signal1), "d3":float(signal2),"d4":float(signal3),'YC':float(slit.vcen()), 'ox':float(traj_o_x.get()), 'oy':float(traj_o_y.get()), 'ax':float(traj_a_x.get()), 'ay':float(traj_a_y.get()), 'in':(float(signal0)-float(signal1))/float(signal1), 'out':(float(signal2)-float(signal3))/float(signal3)}		
+				str='[%(X)04d] at ( %(XC)8.3f , %(YC)8.3f ): %(d1)10.7e %(d2)10.7e %(d3)10.7e %(d4)10.7e %(ox)6.3f %(oy)6.3f %(ax)6.3f %(ay)6.3f %(in)7.4e %(out)7.4e %(down)7.4e %(IB)7.4e %(OB)7.4e %(TB)7.4e %(BB)7.4e'%{"IB":slit.ibraw(),"OB":slit.obraw(),"BB":slit.bbraw(),"TB":slit.tbraw(),"down":float(sig),"X":Ncol,"XC":float(slit.hcen()), "d1":float(signal0), "d2":float(signal1), "d3":float(signal2),"d4":float(signal3),'YC':float(slit.vcen()), 'ox':float(traj_o_x.get()), 'oy':float(traj_o_y.get()), 'ax':float(traj_a_x.get()), 'ay':float(traj_a_y.get()), 'in':(float(signal0)-float(signal1))/float(signal1), 'out':(float(signal2)-float(signal3))/float(signal3)}		
 		
 				print str
 				fp.write(str)
@@ -282,6 +286,18 @@ def main(argv=None):
 				fp.write('\n')
 	
 			Ncol=Ncol+1
+		M=0.
+		for m in range(0,len(sigarray)):
+			if sigarray[m][1]>1.8e-7:
+				M=M+float(sigarray[m][1])
+		MX=0.
+		for m in range(0,len(sigarray)):
+			if sigarray[m][1]>1.8e-7:
+				MX=MX+float(sigarray[m][0])*float(sigarray[m][1])
+		str="CoM detected at %6.3e"%(MX/M)
+		print str
+		fp.write(str)
+		fp.write('\n')
 		Nrow=Nrow+1
 
 	str='End time is '+time.asctime()

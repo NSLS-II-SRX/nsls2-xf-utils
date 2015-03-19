@@ -3,6 +3,8 @@ from epics import poll
 import math
 import time
 
+#updated the SSA closed positions on 2015/3/2, ycchen
+
 def moving(com,act,dbd):
 	if math.fabs(math.fabs(com)-math.fabs(act))<float(dbd):
 		return False 
@@ -23,25 +25,35 @@ class nsls2slit():
 				self.OB0=-4.430
 				self.TB0=-5.70
 #				print "This is SRX's white beam slit."
+				self._slitctrlr='pmac'
 			elif (kwargs['ib'].split(':')[1][:5]=='05IDA') and\
 			 (kwargs['ib'].split('{')[1][:5]=='Slt:2'):
 				self.BB0=0.
 				self.IB0=-6.535
 				self.OB0=-5.065
 				self.TB0=0.
+				self._slitctrlr='pmac'
 #				print "This is SRX's first pink beam slit."
 			elif (kwargs['ib'].split(':')[1][:5]=='05IDB') and\
 			 (kwargs['ib'].split('{')[1][:7]=='Slt:SSA'):
-				self.BB0=-3.6
-				self.IB0=-1.2
-				self.OB0=-3.8
-				self.TB0=-0.7
+			#	self.BB0=-3.6
+			#	self.IB0=-1.2
+			#	self.OB0=-3.8
+			#	self.TB0=-0.7
+
+                       		self.BB0=-2.405
+                                self.IB0=-0.0305
+                                self.OB0=0.9
+                                self.TB0=0.44
+				self._slitctrlr='smaract'
+
 #				print "This is SRX's secondary source aperture."
 			else:
 				self.BB0=0.
 				self.IB0=0.
 				self.OB0=0.
 				self.TB0=0.
+				self._slitctrlr='generic'
 				print "unknown slit, offsets assumed to be zero"
 		#if it is purely a vertical slit it should be here
 		elif kwargs.__contains__('bb'):
@@ -50,6 +62,7 @@ class nsls2slit():
 			self.OB0=0.
 			self.TB0=0.
 			print "unknown slit, offsets assumed to be zero"
+			self._slitctrlr='generic'
 		else:
 			print "Cannot identify slit"
 			return None	
@@ -86,6 +99,9 @@ class nsls2slit():
 			self.VSLIT=True
 		else:
 			self.VSLIT=False
+	@property
+	def slitctrlr(self):
+		return self._slitctrlr
 	def hcen(self,*args):
 		if self.HSLIT is not True:
 			print "Horizontal slit blades not defined."
@@ -98,8 +114,16 @@ class nsls2slit():
 		else:
 			ip=self.IB0-args[0]+self.hsize()/2.
 			op=self.OB0+args[0]+self.hsize()/2.
-			self.ibp.put(ip)
-			self.obp.put(op)
+			if self._slitctrlr=='smaract':
+				if (args[0] < zp):
+					self.ibp.put(ip)
+					self.obp.put(op)
+				else:
+					self.obp.put(op)
+					self.ibp.put(ip)
+			else:
+				self.ibp.put(ip)
+				self.obp.put(op)
 			while moving(self.ibr.get(),ip,0.002) or moving(self.obr.get(),op,0.002):
 				time.sleep(0.01)
 	def vcen(self,*args):
@@ -114,8 +138,16 @@ class nsls2slit():
 		else:
 			tp=self.TB0+args[0]+self.vsize()/2.
 			bp=self.BB0-args[0]+self.vsize()/2.
-			self.tbp.put(tp)
-			self.bbp.put(bp)
+			if self._slitctrlr=='smaract':
+				if (args[0] < zp):
+					self.bbp.put(bp)
+					self.tbp.put(tp)
+				else:
+					self.tbp.put(tp)
+					self.bbp.put(bp)
+			else:
+				self.tbp.put(tp)
+				self.bbp.put(bp)
 			while moving(self.tbr.get(),tp,0.002) or moving(self.bbr.get(),bp,0.002):
 				time.sleep(0.01)
 			return self.vcen()
@@ -129,8 +161,13 @@ class nsls2slit():
 			gap=(ip+op)
 			return gap
 		else:
-			ip=self.IB0+args[0]/2.+self.hcen()
-			op=self.OB0+args[0]/2.-self.hcen()
+			hc=self.hcen()
+			if hc<0.:
+				ip=self.IB0+args[0]/2.-hc
+				op=self.OB0+args[0]/2.+hc
+			else:
+				ip=self.IB0+args[0]/2.-hc
+				op=self.OB0+args[0]/2.+hc
 			self.ibp.put(ip)
 			self.obp.put(op)
 			while moving(self.ibr.get(),ip,0.002) or moving(self.obr.get(),op,0.002):
@@ -149,8 +186,13 @@ class nsls2slit():
 		if len(args)==0:
 			return gap
 		else:
-			bp=self.BB0+args[0]/2.+self.vcen()
-			tp=self.TB0+args[0]/2.-self.vcen()
+			vc=self.vcen()
+			if vc<0.:
+				bp=self.BB0+args[0]/2.-vc
+				tp=self.TB0+args[0]/2.+vc
+			else:
+				bp=self.BB0+args[0]/2.-vc
+				tp=self.TB0+args[0]/2.+vc
 			self.bbp.put(bp)
 			self.tbp.put(tp)
 			while moving(self.tbr.get(),tp,0.002) or moving(self.bbr.get(),bp,0.002):
@@ -159,5 +201,59 @@ class nsls2slit():
 			tp=self.tbr.get()-self.TB0
 			gap=(bp+tp)
 			return gap
-
-
+	def ibraw(self,*args):
+		if self.HSLIT is not True:
+			print "Horizontal slit blades not defined."
+			return None
+		if len(args)==0:
+			ip=self.ibr.get()
+			return ip
+		else:
+			ip=args[0]
+			self.ibp.put(ip)
+			while moving(self.ibr.get(),ip,0.002):
+				time.sleep(0.01)
+			ip=self.ibr.get()
+			return ip
+	def obraw(self,*args):
+		if self.HSLIT is not True:
+			print "Horizontal slit blades not defined."
+			return None
+		if len(args)==0:
+			op=self.obr.get()
+			return op
+		else:
+			op=args[0]
+			self.obp.put(op)
+			while moving(self.obr.get(),op,0.002):
+				time.sleep(0.01)
+			op=self.obr.get()
+			return op
+	def tbraw(self,*args):
+		if self.VSLIT is not True:
+			print "Vertical slit blades not defined."
+			return None
+		if len(args)==0:
+			tp=self.tbr.get()
+			return tp
+		else:
+			tp=args[0]
+			self.tbp.put(tp)
+			while moving(self.tbr.get(),tp,0.002):
+				time.sleep(0.01)
+			tp=self.tbr.get()
+			return tp
+	def bbraw(self,*args):
+		if self.VSLIT is not True:
+			print "Vertical slit blades not defined."
+			return None
+		if len(args)==0:
+			bp=self.bbr.get()
+			return bp
+		else:
+			bp=args[0]
+			self.bbp.put(bp)
+			while moving(self.bbr.get(),bp,0.002):
+				time.sleep(0.01)
+			bp=self.bbr.get()
+			return bp
