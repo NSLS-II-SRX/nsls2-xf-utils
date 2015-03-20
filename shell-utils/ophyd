@@ -1,0 +1,3 @@
+#!/bin/sh
+#ipython ophyd wrapper because I can't be bothered to remember or type this
+ipython --ipython-dir=~/ipython_ophyd --profile=xf05id1
