@@ -5,6 +5,7 @@ import numpy
 import sys
 import time
 import signal
+import string
 from colorclass import Color as col
 import terminaltables
 import srxfe,srxbpm 
@@ -79,6 +80,10 @@ def main(argv=None):
 	bpm1=srxbpm.nsls2bpm(bpm='bpm1')
 	bpm2=srxbpm.nsls2bpm(bpm='bpm2')
 	fe=srxfe.nsls2fe()
+	SRcurrent=epics.PV('SR:C03-BI{DCCT:1}I:Real-I')
+	SRcurrent.info
+	Mshutters=epics.PV('SR-EPS{PLC:1}Sts:MstrSh-Sts')
+	Mshutters.info
 	time.sleep(0.1)
 	while True:
 		#list of lists for terminaltables
@@ -93,6 +98,18 @@ def main(argv=None):
 		trow.append([check_foil('bpm2',bpm2.foil()),check_value('bpm2y',bpm2.V()),'BBA BPM9',check_value('bba9x',bbalist['bba9x']),check_value('bba9y',bbalist['bba9y'])])
 		table=terminaltables.UnixTable(trow)
 		sys.stdout.write(table.table)
+		msg='\n'
+		current=SRcurrent.get()
+		if current>20.:
+			msg=msg+oktext('\t%5.1fmA Stored\t\t\t'%current)
+		else:
+			msg=msg+eetext('\t%5.1fmA Stored\t\t\t'%current)
+		MSstatus=Mshutters.get()
+		if MSstatus == 1:
+			msg=msg+oktext('Shutters Enabled')
+		else:
+			msg=msg+eetext('Shutters Disabled')
+		sys.stdout.write(msg)
 		sys.stdout.flush()
 		time.sleep(5.)
 

@@ -1,0 +1,5 @@
+#shell utilities to make my life easier
+mon-script.sh		invoke terminator with a window size and location
+			that is convenient for tmux multi-pane monitoring
+monitor.sh		invoke tmux, setting up panes and populating them
+			with SRX monitoring scripts
