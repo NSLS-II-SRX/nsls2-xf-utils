@@ -24,7 +24,7 @@ def plotscan(scan,**kwargs):
 		return 2
 	fp.readline()
 	fp.readline()
-	fp.readline()
+#	fp.readline()
 #	fp.readline()
 	offset=fp.tell()
 	xaxis=numpy.zeros(length)

@@ -291,7 +291,7 @@ def main(argv=None):
 		print str
 		fp.write(str)
 		fp.write('\n')
-	str="Current position [mm]: %(XC)7.3f, %(YC)7.3f, %(ZC)7.3f" %\
+	str="Current position [mm]: %(XC)7.4f, %(YC)7.3f, %(ZC)7.3f" %\
 	 {"XC":bmot_cur.get(),"YC":umot_cur.get(),"ZC":gmot_cur.get()}
 	print str
 	fp.write(str)
@@ -373,12 +373,12 @@ def main(argv=None):
 			signal2=0.
 			signal3=0.
 		if options.sim is False:	
-			str=' B= %(B)8.3f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f %(T)d'%{"B":float(bmot_cur.get()), "U":float(umot_cur.get()), "G":float(gmot_cur.get()), "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3, "OX":ox,"AX":ax,"OY":oy,"AY":ay, 'T':time.time()}
+			str=' B= %(B)8.4f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f %(T)d'%{"B":float(bmot_cur.get()), "U":float(umot_cur.get()), "G":float(gmot_cur.get()), "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3, "OX":ox,"AX":ax,"OY":oy,"AY":ay, 'T':time.time()}
 			print str
 			fp.write(str)
 			fp.write('\n')
 		else:
-			str=' B= %(B)8.3f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f'%{"B":tar[0][0], "U":tar[1][0], "G":tar[2][0], "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3, "OX":ox,"AX":ax,"OY":oy,"AY":ay} 
+			str=' B= %(B)8.4f U= %(U)8.3f G= %(G)8.3f : %(C0)10.7e %(C1)10.7e %(C2)10.7e %(C3)10.7e TRAJ %(OX)6.3f %(OY)6.3f %(AX)6.3f %(AY)6.3f'%{"B":tar[0][0], "U":tar[1][0], "G":tar[2][0], "C0":signal0, "C1":signal1, "C2":signal2, "C3":signal3, "OX":ox,"AX":ax,"OY":oy,"AY":ay} 
 			print str
 			fp.write(str)
 			fp.write('\n')
