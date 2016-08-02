@@ -1,0 +1,59 @@
+2016-02-19 13:16:07.855 WARNING [Thread 499] org.csstudio.trends.databrowser2.ui.Controller$1 (archiveFetchFailed) - No archived data for XF:05IDA-VA:1{BT:1-IP:1}P-I
+java.lang.Exception: archiver.values call failed: Server returned HTTP response code: 500 for URL: http://ca.cs.nsls2.local:8888/cgi-bin/ArchiveDataServer.cgi
+	at org.csstudio.archive.reader.channelarchiver.ValueRequest.read(ValueRequest.java:157)
+	at org.csstudio.archive.reader.channelarchiver.ChannelArchiverReader.getSamples(ChannelArchiverReader.java:180)
+	at org.csstudio.archive.reader.channelarchiver.ValueRequestIterator.fetch(ValueRequestIterator.java:67)
+	at org.csstudio.archive.reader.channelarchiver.ValueRequestIterator.<init>(ValueRequestIterator.java:55)
+	at org.csstudio.archive.reader.channelarchiver.ChannelArchiverReader.getOptimizedValues(ChannelArchiverReader.java:202)
+	at org.csstudio.trends.databrowser2.archive.ArchiveFetchJob$WorkerThread.run(ArchiveFetchJob.java:126)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+
+2016-02-19 13:16:34.567 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hprofyDID_5
+2016-02-19 13:16:34.568 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hprofyDID_5
+2016-02-19 13:16:34.568 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel vprofyDID_5
+2016-02-19 13:16:34.568 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel vprofyDID_5
+2016-02-19 13:16:34.568 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel vprofxDID_5
+2016-02-19 13:16:34.568 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel vprofxDID_5
+2016-02-19 13:16:34.569 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hprofxDID_5
+2016-02-19 13:16:34.569 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hprofxDID_5
+2016-02-19 13:16:34.569 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hfmcolorautomaxDID_5
+2016-02-19 13:16:34.569 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hfmcolorautomaxDID_5
+2016-02-19 13:16:34.569 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hfmcolorautominDID_5
+2016-02-19 13:16:34.569 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hfmcolorautominDID_5
+2016-02-19 13:16:34.571 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel filt1-0DID_5
+2016-02-19 13:16:34.571 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel filt1-0DID_5
+2016-02-19 13:16:34.572 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel filt1-2DID_5
+2016-02-19 13:16:34.572 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel filt1-2DID_5
+2016-02-19 13:16:34.574 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel filt1-1DID_5
+2016-02-19 13:16:34.574 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel filt1-1DID_5
+2016-02-19 13:16:34.575 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel filt1-3DID_5
+2016-02-19 13:16:34.575 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel filt1-3DID_5
+2016-02-19 13:16:34.577 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-0DID_5
+2016-02-19 13:16:34.577 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-0DID_5
+2016-02-19 13:16:34.579 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-2DID_5
+2016-02-19 13:16:34.580 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-2DID_5
+2016-02-19 13:16:34.582 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-1DID_5
+2016-02-19 13:16:34.582 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-1DID_5
+2016-02-19 13:16:34.584 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-3DID_5
+2016-02-19 13:16:34.584 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-3DID_5
+2016-02-19 13:16:34.587 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-4DID_5
+2016-02-19 13:16:34.588 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm1-4DID_5
+2016-02-19 13:16:34.595 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-0DID_5
+2016-02-19 13:16:34.595 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-0DID_5
+2016-02-19 13:16:34.599 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-2DID_5
+2016-02-19 13:16:34.599 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-2DID_5
+2016-02-19 13:16:34.600 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-1DID_5
+2016-02-19 13:16:34.600 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-1DID_5
+2016-02-19 13:16:34.602 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-3DID_5
+2016-02-19 13:16:34.602 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-3DID_5
+2016-02-19 13:16:34.604 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-4DID_5
+2016-02-19 13:16:34.604 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel bpm2-4DID_5
+2016-02-19 13:16:34.695 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0xmaxDID_5
+2016-02-19 13:16:34.695 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0xmaxDID_5
+2016-02-19 13:16:34.696 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0ymaxDID_5
+2016-02-19 13:16:34.696 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0ymaxDID_5
+2016-02-19 13:16:34.696 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0xminDID_5

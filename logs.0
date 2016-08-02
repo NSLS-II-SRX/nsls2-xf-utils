@@ -1,0 +1,15 @@
+2016-02-19 13:16:34.793 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0xminDID_5
+2016-02-19 13:16:34.793 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0yminDID_5
+2016-02-19 13:16:34.793 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0yminDID_5
+2016-02-19 13:16:34.905 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hfmcolorautomaxDID_5
+2016-02-19 13:16:34.906 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hfmcolorautomaxDID_5
+2016-02-19 13:16:34.906 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hfmcolorautominDID_5
+2016-02-19 13:16:34.906 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel hfmcolorautominDID_5
+2016-02-19 13:16:35.111 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0xminDID_5
+2016-02-19 13:16:35.112 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0xminDID_5
+2016-02-19 13:16:35.112 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0xmaxDID_5
+2016-02-19 13:16:35.112 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0xmaxDID_5
+2016-02-19 13:16:35.112 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0ymaxDID_5
+2016-02-19 13:16:35.112 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0ymaxDID_5
+2016-02-19 13:16:35.112 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0yminDID_5
+2016-02-19 13:16:35.112 WARNING [Thread 38] org.epics.pvmanager.loc.LocalDataSource (initialize) - Using zero initialization for channel sdd0yminDID_5

@@ -35,14 +35,20 @@ thresh={#index:[expected value, half-margin of error]
 # 'trajay':[0.005,0.005],\
 # 'trajax':[-0.020,0.005],\
 # 'trajay':[0.005,0.005],\
- 'trajax':[-0.020,0.005],\
- 'trajay':[0.000,0.005],\
+# 'trajax':[-0.020,0.005],\
+# 'trajay':[0.000,0.005],\
+ 'trajax':[0.006,0.005],\
+ 'trajay':[0.020,0.005],\
  'trajox':[0.000,0.020],\
  'trajoy':[0.000,0.020],\
- 'bba8x':[-7.8000e-02,0.],\
- 'bba8y':[-3.2000e-02,0.],\
- 'bba9x':[-8.0400e-01,0.],\
- 'bba9y':[-7.4300e-01,0.]\
+# 'bba8x':[-7.8000e-02,0.],\
+# 'bba8y':[-3.2000e-02,0.],\
+# 'bba9x':[-8.0400e-01,0.],\
+# 'bba9y':[-7.4300e-01,0.]\
+ 'bba8x':[-8.600e-02,0.],\
+ 'bba8y':[-3.600e-02,0.],\
+ 'bba9x':[-7.710e-01,0.],\
+ 'bba9y':[-7.600e-01,0.]\
 }
 target={#key:[targets in order of - to + motor position]
  'bpm1':['diode','open','Cu foil','Ti foil','YAG'],\
@@ -92,10 +98,10 @@ def main(argv=None):
 		os.system('clear')
 		bbalist=fe.BBA()
 		trow.append(['HUTCHES','X/Y','FRONT-END','X','Y'])
-		trow.append(['BPM1',check_value('bpm1x',bpm1.H()),'TRAJ ANG',check_value('trajax',fe.AX()),check_value('trajay',fe.AY())])
-		trow.append([check_foil('bpm1',bpm1.foil()),check_value('bpm1y',bpm1.V()),'TRAJ OFF',check_value('trajox',fe.OX()),check_value('trajoy',fe.OY())])
-		trow.append(['BPM2',check_value('bpm2x',bpm2.H()),'BBA BPM8',check_value('bba8x',bbalist['bba8x']),check_value('bba8y',bbalist['bba8y'])])
-		trow.append([check_foil('bpm2',bpm2.foil()),check_value('bpm2y',bpm2.V()),'BBA BPM9',check_value('bba9x',bbalist['bba9x']),check_value('bba9y',bbalist['bba9y'])])
+		trow.append(['BPM1',check_value('bpm1x',bpm1.P()['H']),'TRAJ ANG',check_value('trajax',fe.AX()),check_value('trajay',fe.AY())])
+		trow.append([check_foil('bpm1',bpm1.foil()),check_value('bpm1y',bpm1.P()['V']),'TRAJ OFF',check_value('trajox',fe.OX()),check_value('trajoy',fe.OY())])
+		trow.append(['BPM2',check_value('bpm2x',bpm2.P()['H']),'BBA BPM8',check_value('bba8x',bbalist['bba8x']),check_value('bba8y',bbalist['bba8y'])])
+		trow.append([check_foil('bpm2',bpm2.foil()),check_value('bpm2y',bpm2.P()['V']),'BBA BPM9',check_value('bba9x',bbalist['bba9x']),check_value('bba9y',bbalist['bba9y'])])
 		table=terminaltables.UnixTable(trow)
 		sys.stdout.write(table.table)
 		msg='\n'

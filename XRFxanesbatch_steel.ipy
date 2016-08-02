@@ -1,0 +1,72 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+from epics import PV
+import time
+
+
+def nowtime():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4+'_'
+    return currentTime
+
+aeroyval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.VAL')
+aeroyrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.RBV')
+
+PIval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.VAL')
+PIrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.RBV')
+
+f=open('/nfs/xf05id1/batchText/MET20150808_xanes.text','w')
+
+sam1y=0.042
+sam1z=-296.87
+
+sam3y=15.9919
+sam3z=-296.7
+
+ystep=0.125
+
+SRXpmenergy.moveE(12.975, harmonicIN=7, simulate=False)
+time.sleep(10)   
+
+f.write('sample 1\n')
+f.write('sampley = '+str(aeroyrbv.get())+'\n')
+f.write('samplez = '+str(PIrbv.get())+'\n')
+
+%run ./srx-coord-energy-sdd.py --wait=3 --config=/nfs/xf05id1/energyScanConfig/20150807_Pb_no2.text --acqtime=2.3 --acqnum=1 --checkbeam
+
+SRXpmenergy.moveE(12.975, harmonicIN=7, simulate=False)
+#time.sleep(3)  
+time.sleep(600)  
+
+f.write('sample 3\n')
+aeroyval.put(sam3y, wait=True) 
+time.sleep(3)  
+PIval.put(sam3z, wait=True)
+f.write('samplez = '+str(PIrbv.get())+'\n')
+time.sleep(3)  
+
+for i in range(0,30):
+
+    f.write('sampley = '+str(aeroyrbv.get())+'\n')
+    #record current time    
+    f.write('BeforeScan:'+nowtime()+'\n')
+    
+    SRXpmenergy.moveE(12.975, harmonicIN=7, simulate=False)
+    
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-40 --xnumstep=39 --xstepsize=1 --ystart=-40 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam
+#    #move 100 um up
+    
+    aeroyval.put(aeroyrbv.get()+0.1, wait=True)
+#    time.sleep(3)    
+    time.sleep(600)   
+    
+f.close()

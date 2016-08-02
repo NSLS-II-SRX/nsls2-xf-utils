@@ -1,0 +1,101 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+from epics import PV
+import numpy
+import time
+import SRXenergy
+import SRXpmenergy_testing  #need to test the pm energy; ok for now; need ot wait betwen points
+
+
+
+#aeroyval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.VAL')
+#aeroyrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.RBV')
+
+
+#posval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.VAL')
+#posrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.RBV')
+
+braggVAL=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:P}Mtr.VAL')
+braggRBV=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:P}Mtr.RBV')
+
+c1rVAL=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:R1}Mtr.VAL')
+c1rRBV=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:R1}Mtr.RBV')
+
+c2xVAL=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:X2}Mtr.VAL')
+c2xRBV=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:X2}Mtr.RBV')     
+    
+ugapVAL=PV('SR:C5-ID:G1{IVU21:1-Mtr:2}Inp:Pos')
+ugapRBV=PV('SR:C5-ID:G1{IVU21:1-LEnc}Gap')
+
+
+recordfile='/nfs/xf05id1/src/beamline-tools-ycchen/xanesstack_20151012_2031.text'
+f = open(recordfile, 'w') 
+
+f.write('XANESstack Au Test pattern\n')
+f.close()
+
+elist=numpy.array([])
+elist=numpy.append(elist, 11.939)
+
+Edge=11.919
+Ei=Edge+0.04
+Ef=Edge+0.15
+Estep=0.002
+numstep=int((Ef-Ei)/Estep)
+elist1=Ei+numpy.array(range(0,numstep+1))*Estep
+elist=numpy.append(elist, elist1)
+
+Edge=11.919
+Ei=Edge-0.02
+Ef=Edge-0.05
+Estep=-0.002
+numstep=int((Ef-Ei)/Estep)
+
+elist2=Ei+numpy.array(range(0,numstep+1))*Estep
+
+elist=numpy.append(elist, 11.903)
+elist=numpy.append(elist, elist2)
+
+for energy in elist:
+    
+    SRXpmenergy_testing.moveE(energy, harmonicIN = 5, c1rIN = None, simulate=False, XoffsetIn = 25.32)
+
+    time.sleep(30)
+    #posval.put(tar)
+    braggcur = braggRBV.get()    
+    ugapcur = ugapRBV.get()    
+    c2xcur = c2xRBV.get()    
+    c1rcur = c1rRBV.get()    
+    ecur = SRXenergy.BraggtoE(braggcur)
+    
+    f = open(recordfile, 'a')    
+    f.write('braggcur = '+str(braggcur)+'\n')
+    f.write('ugapcur = '+str(ugapcur)+'\n')
+    f.write('c2xcur = '+str(c2xcur)+'\n')
+    f.write('c1rcur = '+str(c1rcur)+'\n')
+    f.write('ecur = '+str(ecur)+'\n')
+    f.write('energy = '+str(energy)+'\n')
+
+    
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    f.write('fileprefix = \''+currentTime+'_\'\n')
+    f.write('eList.append(energy)\n')
+    f.write('ecurList.append(ecur)\n')
+    f.write('fileprefixList.append(fileprefix)\n\n')
+    f.close()
+
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-60 --xnumstep=39 --xstepsize=1.5 --ystart=-20 --ynumstep=39 --ystepsize=1.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam
+    
+
+
+

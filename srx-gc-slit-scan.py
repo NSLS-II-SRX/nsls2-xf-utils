@@ -286,18 +286,18 @@ def main(argv=None):
 				fp.write('\n')
 	
 			Ncol=Ncol+1
-		M=0.
-		for m in range(0,len(sigarray)):
-			if sigarray[m][1]>1.8e-7:
-				M=M+float(sigarray[m][1])
-		MX=0.
-		for m in range(0,len(sigarray)):
-			if sigarray[m][1]>1.8e-7:
-				MX=MX+float(sigarray[m][0])*float(sigarray[m][1])
-		str="CoM detected at %6.3e"%(MX/M)
-		print str
-		fp.write(str)
-		fp.write('\n')
+		#M=0.
+		#for m in range(0,len(sigarray)):
+		#	if sigarray[m][1]>1.8e-7:
+		#		M=M+float(sigarray[m][1])
+		#MX=0.
+		#for m in range(0,len(sigarray)):
+		#	if sigarray[m][1]>1.8e-7:
+		#		MX=MX+float(sigarray[m][0])*float(sigarray[m][1])
+		#str="CoM detected at %6.3e"%(MX/M)
+		#print str
+		#fp.write(str)
+		#fp.write('\n')
 		Nrow=Nrow+1
 
 	str='End time is '+time.asctime()

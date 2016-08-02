@@ -1,0 +1,139 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+#user parameters
+batchscantitle='300226_Myneni_T4Dust'
+
+##############################################
+#beamlien paramters
+batchscandir='/nfs/xf05id1/data/batchscans/2015-cycle3/'
+
+ptlist = [[71.9106,75.046], 
+          [-16.3861,73.1265],
+          [-68.2123,-47.8015],
+          [-49.9772,65.4485],
+          [-19.8891,73.5505],
+          [-77.4739,-48.3372]
+          ]
+          
+numscanloop = 4 #when numscanloop=1, all points will be scanned once; when numscanloop=2, all points will be scanned once first, then the 2nd time through all points again
+
+################################################3
+#####scan script
+from epics import PV
+import numpy
+import time
+import SRXenergy
+import SRXpmenergy_testing  #need to test the pm energy; ok for now; need ot wait betwen points
+
+def currenttimestr():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    return currentTime
+
+
+xVAL=PV('NPOINT:CH1:SET_POSITION.A')
+xRBV=PV('NPOINT:CH1:GET_POSITION')
+
+yVAL=PV('NPOINT:CH2:SET_POSITION.A')
+yRBV=PV('NPOINT:CH2:GET_POSITION')
+
+braggT=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:P}T-I')
+Tth = 150.0
+braggcoolingtime = 1200
+
+bshopen=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Opn-Cmd')
+bshclose=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Cls-Cmd')
+bshsta=PV('XF:05IDB-PPS:1{PSh:4}Sts:Cls-Sts')
+
+
+xcur = xRBV.get
+ycur = yRBV.get
+
+recordfile=batchscandir+currenttimestr()+'_XANESpoints_'+batchscantitle+'.py'
+f = open(recordfile, 'w') 
+
+f.write('#'+batchscantitle+'\n')
+f.write('#'+currenttimestr()+'\n')
+f.write('# total scan loops'+str(numscanloop)+'\n')
+
+f.close()
+######################################################
+
+for currentnumscanloop in xrange(numscanloop):
+    f = open(recordfile, 'a')
+    f.write('\n# current scan loop #'+str(currentnumscanloop+1)+'\n') 
+    f.close()    
+    for pt in ptlist:
+    
+        print 'moving x,y to:', pt[0], ',', pt[1]
+        xVAL.put(pt[0], wait=True)
+        yVAL.put(pt[1], wait=True)
+        time.sleep(2)
+        
+        xcur = xRBV.get()
+        ycur = yRBV.get()
+        
+        f = open(recordfile, 'a')    
+        f.write('xcur = '+str(xcur)+'\n')
+        f.write('ycur = '+str(ycur)+'\n')    
+        D0=str(time.localtime()[0])
+        D1=str(time.localtime()[1])
+        D2=str(time.localtime()[2])
+        D3=str(time.localtime()[3])
+        D4=str(time.localtime()[4])
+        currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+        f.write('fileprefix = \''+currentTime+'_\'\n')
+    
+        f.write('fileprefixList.append(fileprefix)\n\n')
+    
+        f.close()
+    
+    #user modify scan:
+        print 'Open shutter for collecting XANES.'
+            
+        bshopen.put(1)
+        time.sleep(2)
+        while bshsta.get() == 1:
+            print 'shutter did not open, executing opening command again.' 
+            bshopen.put(1)
+            time.sleep(2)
+    
+        time.sleep(2)
+    
+        print 'Shutter opend.'
+    
+        %run ./srx-coord-energy-sdd-timeout.py --config=/nfs/xf05id1/energyScanConfig/20151121_Cr02.text --checkbeam --acqtime=3.0 --acqnum=1 --wait=0.3
+        #%run ./srx-coord-energy-sdd-timeout.py --config=/nfs/xf05id1/energyScanConfig/20151105_Lal3_exafs.text --checkbeam --acqtime=0.5 --acqnum=1
+    
+        print 'Done with this XANES. Closing shutter for position change.'
+        bshclose.put(1) 
+        time.sleep(2)
+        while bshsta.get() == 0:
+            print 'shutter did not close, executing closing command again.'        
+            bshclose.put(1)
+            time.sleep(2)
+    
+        time.sleep(2)
+    
+            
+        print 'Shutter closed.'
+    
+        bT=braggT.get()
+        print bT, Tth
+        if bT >= Tth:
+            print 'bragg motor overheated, wait '+str(braggcoolingtime) +'min.' 
+            time.sleep(braggcoolingtime)
+      
+
+print 'Done with all energy points.'
+   
+#xcur = xRBV.get

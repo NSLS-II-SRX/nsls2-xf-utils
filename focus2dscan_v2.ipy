@@ -1,0 +1,151 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+from epics import PV
+import numpy
+import time
+
+##standard batch setup
+def currenttimestr():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    return currentTime
+
+def currenttimehrmin():
+    D0=time.localtime()[0]
+    D1=time.localtime()[1]
+    D2=time.localtime()[2]
+    D3=time.localtime()[3]
+    D4=time.localtime()[4]
+    hrmin=D3*60+D4
+    return hrmin
+
+
+    
+batchscantitle='AupatternTest_focus_ssa'
+batchscandir='/nfs/xf05id1/data/batchscans/'
+
+recordfile=batchscandir+currenttimestr()+batchscantitle+'.text'
+f = open(recordfile, 'w') 
+
+
+f.write(batchscantitle+'\n')
+f.write(currenttimestr()+'\n')
+
+f.close()
+
+##relevent PVs and initial positions
+
+#aeroyval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.VAL')
+#aeroyrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.RBV')
+
+posval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.VAL')
+posrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.RBV')
+
+mid=-279.391
+rerun=True
+
+setappend = True  #append list commands
+
+def preloopblock(title='block scans'):
+    f = open(recordfile, 'a')    
+    print title
+    f.write('\n'+title+':\n')
+
+    f.close()
+
+def prescanblock (ssahsize=0.05, samzpos=mid):
+
+    #initial file output
+    f = open(recordfile, 'a')    
+
+    #move motors
+    ssa.hsize(ssahsize)
+    posval.put(samzpos)
+
+    #wait for motors to settle
+    time.sleep(5)
+  
+    #get current motor positions
+    ssahsize=ssa.hsize()
+    ycur = posrbv.get()  
+    
+    #print strings of motor positions
+    ssastr= 'ssa position = '+ str(ssahsize)
+    samzstr= 'sample z position = '+ str(ycur)
+   
+    f.write(ssastr+'\n')
+    f.write(samzstr+'\n')
+
+    f.write('fileprefix = \''+currenttimestr()+'_\'\n')
+
+    if setappend == True:        
+        f.write('ssahsizeList.append(ycur)\n')
+        f.write('samzpostList.append(ycur)\n')
+        f.write('fileprefixList.append(fileprefix)\n')
+    
+    f.close()
+
+    time1=currenttimehrmin()
+
+    return time1
+    
+        
+def checkcondition(time1):       
+    conditiontime = 10  #if scan takes longer than 10 min, set rerun to false
+    time2=currenttimehrmin()
+    if (time2-time1) >= conditiontime: 
+        rerun = False
+        print 'rerun?', rerun     
+##################################
+##real part:
+
+###testing sample z:
+poslist=numpy.array([mid-0.10, mid, mid+0.1, mid+0.25, mid+0.5, mid+1.0, mid+2.0])
+print poslist
+
+preloopblock(title='sample z test scans')
+for tar in poslist:
+    prescantime=prescanblock(ssahsize=0.05, samzpos=tar)
+    rerun = True
+    print 'rerun?', rerun    
+    while rerun == True:    
+        #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=59 --xstepsize=0.5 --ystart=-68 --ynumstep=59 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+        %run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-50 --xnumstep=59 --xstepsize=0.5 --ystart=-67 --ynumstep=59 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+        #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=1 --xstepsize=0.5 --ystart=-68 --ynumstep=1 --ystepsize=0.5 --wait=0.1 --acqtime=0.1 --acqnum=1 --checkbeam --checkcryo    
+        rerun = checkcondition(prescantime)            
+        
+### testing ssa
+ssalist=numpy.array([0.1, 0.02])
+print ssalist
+
+preloopblock(title='ssa testing scans')
+for tar in ssalist:
+    prescantime=prescanblock(ssahsize=tar, samzpos=mid)
+    rerun = True
+    print 'rerun?', rerun
+
+    while rerun == True:    
+        #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=59 --xstepsize=0.5 --ystart=-68 --ynumstep=59 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+        %run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-50 --xnumstep=59 --xstepsize=0.5 --ystart=-67 --ynumstep=59 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+        #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=1 --xstepsize=0.5 --ystart=-68 --ynumstep=1 --ystepsize=0.5 --wait=0.1 --acqtime=0.1 --acqnum=1 --checkbeam --checkcryo    
+        rerun = checkcondition(prescantime)  
+
+####final scan with 0.3 um step size, close ssa back to 0.02
+preloopblock(title='0.3 um fine scan')
+prescantime=prescanblock(ssahsize=0.05, samzpos=mid)
+rerun = True
+print 'rerun?', rerun
+while rerun == True:    
+    #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=59 --xstepsize=0.5 --ystart=-68 --ynumstep=59 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+    %run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-50 --xnumstep=99 --xstepsize=0.3 --ystart=-67 --ynumstep=99 --ystepsize=0.3 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+    #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=1 --xstepsize=0.5 --ystart=-68 --ynumstep=1 --ystepsize=0.5 --wait=0.1 --acqtime=0.1 --acqnum=1 --checkbeam --checkcryo          
+    rerun = checkcondition(prescantime)

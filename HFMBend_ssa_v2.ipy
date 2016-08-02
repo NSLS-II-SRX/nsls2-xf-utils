@@ -1,0 +1,91 @@
+"""
+Created on Sat Apr 11 23:06:50 2015
+
+@author: xf05id1
+"""
+import time
+from epics import PV
+hfmbendVAL=PV('XF:05IDA-OP:1{Mir:1-Ax:Bend}Mtr.VAL')
+hfmbendRBV=PV('XF:05IDA-OP:1{Mir:1-Ax:Bend}Mtr.RBV')
+
+
+recordfile='/nfs/xf05id1/data/beamlineData/HFMbend/HFMBendDataRecord20160121_2130.text'
+f = open(recordfile, 'w') 
+
+f.write('first run\n')
+f.close()
+for dbdr in xrange(11000, -50000, -2000):
+#for dbdr in xrange(8000, -44000, -10000): #testing
+
+    f = open(recordfile, 'a') 
+    #hfm_bdr.move(293950+dbdr)
+    #hfm_bdr.move(265950+dbdr) #2015 cycle2
+    hfmbendVAL.put(265950+dbdr)
+
+    time.sleep(5)
+    
+    hfm_bdrpos=hfmbendRBV.get()
+    f.write('HFM Bend = '+str(hfm_bdrpos)+'\n')
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'/'+D1+'/'+D2+' '+D3+':'+D4
+    f.write('BeforeScan: '+currentTime+'\n')
+    
+#    %run /nfs/xf05id1/src/nsls2-xf-utils/./srx-gc-slit-scan-v2.py --slitname=ssa --detname=XF:05IDA-BI{BPM:05}AH501 --xstart=-0.25 --xnumstep=50 --xstepsize=0.01 --ystart=0. --ynumstep=0 --ystepsize=0.1 --hsize=0.01 --vsize=6.0 --checkbeam 
+#    %run /nfs/xf05id1/src/nsls2-xf-utils/./srx-gc-slit-scan-v2.py --slitname=ssa --detname=XF:05IDA-BI{BPM:05}AH501 --xstart=0.4 --xnumstep=50 --xstepsize=0.01 --ystart=0.1 --ynumstep=0 --ystepsize=0.1 --hsize=0.01 --vsize=6.0 --checkbeam #2015 cycle2
+    %run /nfs/xf05id1/src/nsls2-xf-utils/./srx-gc-slit-scan-v2.py --slitname=ssa --detname=XF:05IDA-BI{BPM:05}AH501 --xstart=1.05 --xnumstep=50 --xstepsize=0.01 --ystart=0.1 --ynumstep=0 --ystepsize=0.1 --hsize=0.01 --vsize=6.0 --checkbeam --wait=0.15
+
+    #%run /nfs/xf05id1/src/nsls2-xf-utils/./srx-gc-slit-scan.py --help
+    
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    
+    currentTime=D0+'/'+D1+'/'+D2+' '+D3+':'+D4
+    f.write('AfterScan: '+currentTime+'\n\n')
+    f.close()    
+
+f = open(recordfile, 'a')    
+f.write('second run\n')
+hfmbendVAL.put(265950+11000)
+time.sleep(180)
+for dbdr in xrange(11000, -50000, -2000):
+
+    f = open(recordfile, 'a') 
+    hfmbendVAL.put(265950+dbdr)
+
+    
+    hfm_bdrpos=hfmbendRBV.get()
+    f.write('HFM Bend = '+str(hfm_bdrpos)+'\n')
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'/'+D1+'/'+D2+' '+D3+':'+D4
+    f.write('BeforeScan: '+currentTime+'\n')
+    
+#    %run /nfs/xf05id1/src/nsls2-xf-utils/./srx-gc-slit-scan-v2.py --slitname=ssa --detname=XF:05IDA-BI{BPM:05}AH501 --xstart=-0.25 --xnumstep=50 --xstepsize=0.01 --ystart=0. --ynumstep=0 --ystepsize=0.1 --hsize=0.01 --vsize=6.0 --checkbeam 
+#    %run /nfs/xf05id1/src/nsls2-xf-utils/./srx-gc-slit-scan-v2.py --slitname=ssa --detname=XF:05IDA-BI{BPM:05}AH501 --xstart=0.4 --xnumstep=50 --xstepsize=0.01 --ystart=0.1 --ynumstep=0 --ystepsize=0.1 --hsize=0.01 --vsize=6.0 --checkbeam #2015 cycle2
+    %run /nfs/xf05id1/src/nsls2-xf-utils/./srx-gc-slit-scan-v2.py --slitname=ssa --detname=XF:05IDA-BI{BPM:05}AH501 --xstart=1.05 --xnumstep=50 --xstepsize=0.01 --ystart=0.1 --ynumstep=0 --ystepsize=0.1 --hsize=0.01 --vsize=6.0 --checkbeam --wait=0.15#2016 cycle1
+
+
+    #%run /nfs/xf05id1/src/nsls2-xf-utils/./srx-gc-slit-scan.py --help
+    
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    
+    currentTime=D0+'/'+D1+'/'+D2+' '+D3+':'+D4
+    f.write('AfterScan: '+currentTime+'\n\n')
+
+
+
+f.close()

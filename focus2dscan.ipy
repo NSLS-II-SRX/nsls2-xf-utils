@@ -1,0 +1,196 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+from epics import PV
+import numpy
+import time
+#aeroyval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.VAL')
+#aeroyrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.RBV')
+
+
+posval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.VAL')
+posrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.RBV')
+
+totnum=5
+
+
+recordfile='/nfs/xf05id1/data/batchscans/20151015_0002_AupatternTest_focus_ssa.text'
+f = open(recordfile, 'w') 
+
+f.write('linecalibration\n')
+f.close()
+
+mid=-279.559
+#start=mid-0.5
+#end=mid+0.5
+#step=0.1
+#
+#num=int((end-start)/step)
+#
+#
+#poslist=start+numpy.array(range(1,num+1))*step
+
+
+poslist=numpy.array([mid-0.5, mid-0.25, mid-0.10, mid, mid+0.1, mid+0.25, mid+0.5])
+print poslist
+
+for tar in poslist:
+
+    posval.put(tar)
+    time.sleep(5)
+    ycur = posrbv.get()    
+    
+    print tar
+    f = open(recordfile, 'a')    
+    f.write('\nsample z test scans:\n')
+    f.write('pos = '+str(ycur)+'\n')
+    ssahsize=ssa.hsize()
+    f.write('ssahsize = '+str(ssahsize)+'\n')
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    f.write('fileprefix = \''+currentTime+'_\'\n')
+    f.write('postList.append(pos)\n')
+    f.write('fileprefixList.append(fileprefix)\n')
+    f.close()
+
+
+
+    hr1=time.localtime()[3]
+    min1=time.localtime()[4]    
+    print hr1, min1   
+    rerun = True
+    print 'rerun?', rerun
+    while rerun == True:    
+        %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=59 --xstepsize=0.5 --ystart=-68 --ynumstep=59 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+        #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=1 --xstepsize=0.5 --ystart=-68 --ynumstep=1 --ystepsize=0.5 --wait=0.1 --acqtime=0.1 --acqnum=1 --checkbeam --checkcryo
+
+        hr2=time.localtime()[3]
+        min2=time.localtime()[4]
+        print hr2, min2          
+        if (hr2*60+min2)-(hr1*60+min1) >=10:  #if scan takes longer than 10 min, set rerun to false
+            rerun = False
+            print 'rerun?', rerun
+        
+            
+#### testing ssa
+tar=mid
+    
+ssa.hsize(0.05)
+posval.put(tar)
+time.sleep(5)
+ycur = posrbv.get()    
+
+f = open(recordfile, 'a')    
+
+f.write('\nssa test scans:\n')
+f.write('pos = '+str(ycur)+'\n')
+ssahsize=ssa.hsize()
+f.write('ssahsize = '+str(ssahsize)+'\n')
+D0=str(time.localtime()[0])
+D1=str(time.localtime()[1])
+D2=str(time.localtime()[2])
+D3=str(time.localtime()[3])
+D4=str(time.localtime()[4])
+currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+f.write('fileprefix = \''+currentTime+'_\'\n')
+f.write('postList.append(pos)\n')
+f.write('fileprefixList.append(fileprefix)\n')
+f.close()
+
+
+hr1=time.localtime()[3]
+min1=time.localtime()[4]    
+print hr1, min1   
+rerun = True
+while rerun == True:    
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=59 --xstepsize=0.5 --ystart=-68 --ynumstep=59 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+    #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=1 --xstepsize=0.5 --ystart=-68 --ynumstep=1 --ystepsize=0.5 --wait=0.1 --acqtime=0.1 --acqnum=1 --checkbeam --checkcryo
+    hr2=time.localtime()[3]
+    min2=time.localtime()[4]
+    print hr2, min2          
+    if (hr2*60+min2)-(hr1*60+min1) >=10:
+        rerun = False
+        print 'rerun?', rerun
+        
+ssa.hsize(0.1)
+time.sleep(5)
+ycur = posrbv.get()    
+
+f = open(recordfile, 'a')    
+
+f.write('\nssa test scan.\n')
+f.write('pos = '+str(ycur)+'\n')
+ssahsize=ssa.hsize()
+f.write('ssahsize = '+str(ssahsize)+'\n')
+D0=str(time.localtime()[0])
+D1=str(time.localtime()[1])
+D2=str(time.localtime()[2])
+D3=str(time.localtime()[3])
+D4=str(time.localtime()[4])
+currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+f.write('fileprefix = \''+currentTime+'_\'\n')
+f.write('postList.append(pos)\n')
+f.write('fileprefixList.append(fileprefix)\n')
+f.close()
+
+hr1=time.localtime()[3]
+min1=time.localtime()[4]    
+print hr1, min1   
+rerun = True
+print 'rerun?', rerun
+while rerun == True:    
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=59 --xstepsize=0.5 --ystart=-68 --ynumstep=59 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+    #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=1 --xstepsize=0.5 --ystart=-68 --ynumstep=1 --ystepsize=0.5 --wait=0.1 --acqtime=0.1 --acqnum=1 --checkbeam --checkcryo
+    hr2=time.localtime()[3]
+    min2=time.localtime()[4]
+    print hr2, min2          
+    print 'waiting for 5s; time to interrupt'    
+    time.sleep(5)
+    if (hr2*60+min2)-(hr1*60+min1) >=10:
+        rerun = False
+        print 'rerun?', rerun
+####final scan with 0.3 um step size, close ssa back to 0.02
+ssa.hsize(0.02)
+time.sleep(5)
+ycur = posrbv.get()    
+
+
+f = open(recordfile, 'a')    
+
+f.write('\n0.3 um step scan\n')
+f.write('pos = '+str(ycur)+'\n')
+ssahsize=ssa.hsize()
+f.write('ssahsize = '+str(ssahsize)+'\n')
+D0=str(time.localtime()[0])
+D1=str(time.localtime()[1])
+D2=str(time.localtime()[2])
+D3=str(time.localtime()[3])
+D4=str(time.localtime()[4])
+currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+f.write('fileprefix = \''+currentTime+'_\'\n')
+f.write('postList.append(pos)\n')
+f.write('fileprefixList.append(fileprefix)\n')
+f.close()
+
+
+hr1=time.localtime()[3]
+min1=time.localtime()[4]    
+print hr1, min1   
+rerun = True
+print 'rerun?', rerun
+while rerun == True:    
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=99 --xstepsize=0.3 --ystart=-65 --ynumstep=99 --ystepsize=0.3 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+    #%run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-35 --xnumstep=1 --xstepsize=0.5 --ystart=-68 --ynumstep=1 --ystepsize=0.5 --wait=0.1 --acqtime=0.1 --acqnum=1 --checkbeam --checkcryo   hr2=time.localtime()[3]
+    min2=time.localtime()[4]
+    print hr2, min2          
+    if (hr2*60+min2)-(hr1*60+min1) >=10:
+        rerun = False
+        print 'rerun?', rerun

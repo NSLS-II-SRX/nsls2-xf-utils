@@ -1,0 +1,94 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+from epics import PV
+import time
+
+
+def nowtime():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4+'_'
+    return currentTime
+
+aeroyval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.VAL')
+aeroyrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.RBV')
+
+PIval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.VAL')
+PIrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.RBV')
+
+f=open('/nfs/xf05id1/batchText/MET20150807.text','w')
+
+sam1y=-1.7580+1
+sam1z=-297.32
+
+sam3y=15.7919+1
+sam3z=-297.02
+ystep=0.125
+
+for i in range(0,40):
+    f.write('cycle:'+str(i)+'\n')
+    if i%2 == 0:
+        SRXpmenergy.moveE(15.5, harmonicIN=7, c2xIN=4.1327, c1rIN=-4.736, simulate=False)
+        f.write('energy: 15.5 keV\n')  
+        time.sleep(60*2)
+    else:
+        SRXpmenergy.moveE(6.5, harmonicIN=3, c2xIN=3.5, c1rIN=-4.776, simulate=False)
+        time.sleep(60*2)
+        f.write('energy: 6.5 keV\n')  
+
+    #put to sample 1 position
+    if i%2 == 0:
+        aeroyval.put(sam1y+ystep*i, wait=True)
+    else:
+        aeroyval.put(sam1y+ystep*(i-1), wait=True)
+    PIval.put(sam1z, wait=True)
+    time.sleep(5)
+    #record current y position
+    f.write('sample 1\n')
+    f.write('sampley = '+str(aeroyrbv.get())+'\n')
+    f.write('samplez = '+str(PIrbv.get())+'\n')
+    #record current time    
+    f.write('BeforeScan:'+nowtime()+'\n')
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-40 --xnumstep=39 --xstepsize=1 --ystart=-40 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam
+    print 'done first one!!!'
+
+    #move 40 um up
+    aeroyval.put(aeroyrbv.get()+0.04, wait=True)
+    time.sleep(2)    
+    #record current y position
+    f.write('sampley = '+str(aeroyrbv.get())+'\n')
+    #record current time    
+    f.write('BeforeScan:'+nowtime()+'\n')
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-40 --xnumstep=39 --xstepsize=1 --ystart=-40 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam
+
+    if i%2 == 0:
+        aeroyval.put(sam3y+ystep*i, wait=True)
+    else:
+        aeroyval.put(sam3y+ystep*(i-1), wait=True)
+    PIval.put(sam3z, wait=True)
+    time.sleep(5)
+    #record current y position
+    f.write('sample 3\n')
+    f.write('sampley = '+str(aeroyrbv.get())+'\n')
+    f.write('samplez = '+str(PIrbv.get())+'\n')
+    #record current time    
+    f.write('BeforeScan:'+nowtime()+'\n')
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-40 --xnumstep=39 --xstepsize=1 --ystart=-40 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam
+
+    #move 40 um up
+    aeroyval.put(aeroyrbv.get()+0.04, wait=True)
+    time.sleep(2)
+    #record current y position
+    f.write('sampley = '+str(aeroyrbv.get())+'\n')
+    #record current time    
+    f.write('BeforeScan:'+nowtime()+'\n')
+    %run ./srx-2dscan-sdd.py --detname=XF:05IDA{IM:1} --xstart=-40 --xnumstep=39 --xstepsize=1 --ystart=-40 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam
+f.close()

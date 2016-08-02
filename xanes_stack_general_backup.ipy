@@ -1,0 +1,129 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+#user parameters
+batchscantitle='IKPM10-A-Fe'
+edge=8.979 #keV
+Ei=edge-0.02 #keV
+Ef=edge+0.15 #keV
+Estep=0.002 #keV
+
+##############################################
+#beamlien paramters
+batchscandir='/nfs/xf05id1/data/batchscans/2015-cycle3/'
+xoffsetvalue=25.271539
+harmonicUse = 3
+
+################################################3
+#####scan script
+from epics import PV
+import numpy
+import time
+import SRXenergy
+import SRXpmenergy_testing  #need to test the pm energy; ok for now; need ot wait betwen points
+
+def currenttimestr():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    return currentTime
+
+
+#aeroyval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.VAL')
+#aeroyrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.RBV')
+
+
+#posval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.VAL')
+#posrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Z}Mtr.RBV')
+
+braggVAL=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:P}Mtr.VAL')
+braggRBV=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:P}Mtr.RBV')
+
+c1rVAL=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:R1}Mtr.VAL')
+c1rRBV=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:R1}Mtr.RBV')
+
+c2xVAL=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:X2}Mtr.VAL')
+c2xRBV=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:X2}Mtr.RBV')     
+    
+ugapVAL=PV('SR:C5-ID:G1{IVU21:1-Mtr:2}Inp:Pos')
+ugapRBV=PV('SR:C5-ID:G1{IVU21:1-LEnc}Gap')
+
+
+recordfile=batchscandir+currenttimestr()+'_XANESstack_'+batchscantitle+'.py'
+f = open(recordfile, 'w') 
+
+f.write('#'+batchscantitle+'\n')
+f.write('#'+currenttimestr()+'\n')
+
+f.write('#Edge = '+str(edge)+' keV\n')
+f.write('#Start Energy = '+str(Ei)+' keV\n')
+f.write('#Final Energy = '+str(Ef)+' keV\n')
+f.write('#Energy step size = '+str(Estep)+' keV\n')
+
+f.write('setElist=[]'+'\n')
+f.write('actualElist=[]'+'\n')
+f.write('fileprefixList=[]'+'\n')
+
+f.close()
+
+elist=numpy.array([])
+numstep=int((Ef-Ei)/Estep)
+elist=Ei+numpy.array(range(0,numstep+1))*Estep
+######################################################
+elist=[7.114, 7.121, 7.126, 7.130, 7.137, 12.5, 15.0]
+
+for energy in elist:
+    
+    if energy > 10:
+        harmonicUse = 7
+        
+    SRXpmenergy_testing.moveE(energy, harmonicIN = harmonicUse, c1rIN = None, simulate=False, XoffsetIn = xoffsetvalue)
+
+    time.sleep(30)
+    if energy > 10:
+        time.sleep(120)
+
+    #posval.put(tar)
+    braggcur = braggRBV.get()    
+    ugapcur = ugapRBV.get()    
+    c2xcur = c2xRBV.get()    
+    c1rcur = c1rRBV.get()    
+    ecur = SRXenergy.BraggtoE(braggcur)
+    
+    f = open(recordfile, 'a')    
+    f.write('actualenergy = '+str(ecur)+'\n')
+    f.write('setenergy = '+str(energy)+'\n')
+
+    
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    f.write('fileprefix = \''+currentTime+'_\'\n')
+
+    f.write('braggcur = '+str(braggcur)+'\n')
+    f.write('ugapcur = '+str(ugapcur)+'\n')
+    f.write('c2xcur = '+str(c2xcur)+'\n')
+    f.write('c1rcur = '+str(c1rcur)+'\n')
+
+    f.write('setElist.append(setenergy)\n')
+    f.write('actualElist.append(actualenergy)\n')
+    f.write('fileprefixList.append(fileprefix)\n\n')
+
+    f.close()
+
+#user modify scan:
+    %run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-20 --xnumstep=59 --xstepsize=1 --ystart=40 --ynumstep=49 --ystepsize=1 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkcryo --checkbeam
+    
+
+
+

@@ -1,0 +1,148 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Nov  8 18:28:13 2015
+
+@author: xf05id1
+"""
+import time
+from epics import PV
+
+bshopen=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Opn-Cmd')
+bshclose=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Cls-Cmd')
+bshsta=PV('XF:05IDB-PPS:1{PSh:4}Sts:Cls-Sts')
+
+#for Npoint
+fxVAL=PV('NPOINT:CH1:SET_POSITION.A')
+fxRBV=PV('NPOINT:CH1:GET_POSITION')
+
+fyVAL=PV('NPOINT:CH2:SET_POSITION.A')
+fyRBV=PV('NPOINT:CH2:GET_POSITION')
+
+
+def currenttimestr():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    return currentTime
+    
+def writecurrenttime(writingfile):
+    writingfile = open(recordfile, 'a')
+    writingfile.write(currenttimestr()+'\n')
+    writingfile.close()
+
+def writecscannum(writingfile, num):
+    writingfile = open(recordfile, 'a')
+    writingfile.write('# '+str(num)+'\n')
+    writingfile.close()
+
+def shutterclose():
+    print 'Done with this XRF 2D map. Closing shutter for position change.'
+    bshclose.put(1) 
+    time.sleep(2)
+    while bshsta.get() == 0:
+        print 'shutter did not close, executing closing command again.'        
+        bshclose.put(1)
+        time.sleep(2)
+
+    time.sleep(2)
+        
+    print 'Shutter closed.'
+
+def shutteropen():
+    print 'Open shutter for collecting XRF 2D map.'
+        
+    bshopen.put(1)
+    time.sleep(2)
+    while bshsta.get() == 1:
+        print 'shutter did not open, executing opening command again.' 
+        bshopen.put(1)
+        time.sleep(2)
+
+    time.sleep(2)
+
+    print 'Shutter opend.'
+    
+def recordxy(writingfile):
+    fxcur = fxRBV.get()
+    fycur = fyRBV.get()
+    
+    writingfile = open(recordfile, 'a')    
+    writingfile.write('#endx = '+str(fxcur)+'\n')
+    writingfile.write('#endy = '+str(fycur)+'\n')
+    writingfile.close()
+
+
+################script starts here##################
+
+#write text file:
+batchscantitle='batchxytest'
+#batchscantitle='test'
+
+batchscandir='/nfs/xf05id1/data/batchscans/2015-cycle3/'
+
+recordfile=batchscandir+currenttimestr()+'_XRF2D_xbatch_'+batchscantitle+'.py'
+f = open(recordfile, 'w') 
+
+f.write('#'+batchscantitle+'\n')
+f.write('# batch scan started time:'+currenttimestr()+'\n\n')
+f.close()
+
+waittime = 10 #waittime between scans in sec.
+
+#1 
+writecurrenttime(f)
+writecscannum(f, 1)
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-86 --xnumstep=2 --xstepsize=1.0 --ystart=10 --ynumstep=3 --ystepsize=1.0 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+recordxy(f)
+shutterclose()
+time.sleep(waittime)
+
+#2
+writecurrenttime(f)
+writecscannum(f, 2)   
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-83 --xnumstep=2 --xstepsize=1.0 --ystart=10 --ynumstep=3 --ystepsize=1.0 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+recordxy(f)
+shutterclose()
+time.sleep(waittime)
+
+#3
+writecurrenttime(f)
+writecscannum(f, 3) 
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-80 --xnumstep=2 --xstepsize=1.0 --ystart=10 --ynumstep=3 --ystepsize=1.0 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+recordxy(f)
+shutterclose()
+time.sleep(waittime)
+
+#4
+writecurrenttime(f)
+writecscannum(f, 4) 
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-86 --xnumstep=2 --xstepsize=1.0 --ystart=14 --ynumstep=3 --ystepsize=1.0 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+recordxy(f)
+shutterclose()
+time.sleep(waittime)
+
+#5
+writecurrenttime(f)
+writecscannum(f, 5) 
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-83 --xnumstep=2 --xstepsize=1.0 --ystart=14 --ynumstep=3 --ystepsize=1.0 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+recordxy(f)
+shutterclose()
+time.sleep(waittime)
+
+#6
+writecurrenttime(f)
+writecscannum(f, 6) 
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-80 --xnumstep=2 --xstepsize=1.0 --ystart=14 --ynumstep=3 --ystepsize=1.0 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+recordxy(f)
+shutterclose()
+time.sleep(waittime)
+

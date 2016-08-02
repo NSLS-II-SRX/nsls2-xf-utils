@@ -1,0 +1,43 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+from epics import PV
+import time
+
+def nowtime():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4+'_'
+    return currentTime
+
+
+filename = '/nfs/xf05id1/batchText/HenkelSS_'+nowtime()+'.text'
+
+#aeroyval=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.VAL')
+#aeroyrbv=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:Y}Mtr.RBV')
+
+filect=0
+
+for i in range(0,20):
+
+    f=open(filename,'a')
+    
+    #record current time    
+    f.write('file'+str(filect)+'='+nowtime()+'\n')
+    
+    %run ./srx-coord-energy-sdd.py --wait=3 --config=/nfs/xf05id1/energyScanConfig/20150809_Fe_no4.text --acqtime=0.3 --acqnum=1 --checkbeam
+        
+    time.sleep(300)
+    filect=filect+1
+    
+    f.close()
+    
+
+

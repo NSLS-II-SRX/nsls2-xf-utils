@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Nov  8 18:28:13 2015
+
+@author: xf05id1
+"""
+import time
+
+#%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-20 --xnumstep=39 --xstepsize=1 --ystart=-30 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=1 --acqnum=1 --checkbeam --checkcryo
+time.sleep(5)
+
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-20 --xnumstep=39 --xstepsize=1 --ystart=10 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=1 --acqnum=1 --checkbeam --checkcryo
+time.sleep(60)
+
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=20 --xnumstep=39 --xstepsize=1 --ystart=-30 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=1 --acqnum=1 --checkbeam --checkcryo
+time.sleep(60)
+
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=20 --xnumstep=39 --xstepsize=1 --ystart=10 --ynumstep=39 --ystepsize=1 --wait=0.1 --acqtime=1 --acqnum=1 --checkbeam --checkcryo
+time.sleep(60)
+

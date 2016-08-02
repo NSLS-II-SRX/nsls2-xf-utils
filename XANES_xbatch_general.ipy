@@ -1,0 +1,133 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+#user parameters
+batchscantitle='ZnO'
+
+##############################################
+#beamlien paramters
+batchscandir='/nfs/xf05id1/data/batchscans/2015-cycle3/'
+
+x=43.52+0.04 ##CHANGE!!!!!!!!!!!!
+
+ptlist = []
+for i in xrange(20):
+    ptlist.append(x+0.04*i)
+
+################################################3
+#####scan script
+from epics import PV
+import numpy
+import time
+import SRXenergy
+import SRXpmenergy_testing  #need to test the pm energy; ok for now; need ot wait betwen points
+
+def currenttimestr():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    return currentTime
+
+#npoint
+#xVAL=PV('NPOINT:CH1:SET_POSITION.A')
+#xRBV=PV('NPOINT:CH1:GET_POSITION')
+
+#yVAL=PV('NPOINT:CH2:SET_POSITION.A')
+#yRBV=PV('NPOINT:CH2:GET_POSITION')
+
+braggT=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:P}T-I')
+Tth = 115.0
+
+bshopen=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Opn-Cmd')
+bshclose=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Cls-Cmd')
+bshsta=PV('XF:05IDB-PPS:1{PSh:4}Sts:Cls-Sts')
+
+xVAL=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:X}Mtr.VAL')
+xRBV=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:X}Mtr.RBV')
+
+xcur = xRBV.get()
+#ycur = yRBV.get()
+
+recordfile=batchscandir+currenttimestr()+'_XANES_xbatch_'+batchscantitle+'.py'
+f = open(recordfile, 'w') 
+
+f.write('#'+batchscantitle+'\n')
+f.write('#'+currenttimestr()+'\n')
+
+f.close()
+######################################################
+
+for pt in ptlist:
+
+    print 'moving x to:', pt
+    xVAL.put(pt, wait=True)
+    #yVAL.put(pt[1], wait=True)
+    time.sleep(2)
+    
+    xcur = xRBV.get()
+    #ycur = yRBV.get()
+    
+    f = open(recordfile, 'a')    
+    f.write('xcur = '+str(xcur)+'\n')
+    #f.write('ycur = '+str(ycur)+'\n')    
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    f.write('fileprefix = \''+currentTime+'_\'\n')
+
+    f.write('fileprefixList.append(fileprefix)\n\n')
+
+    f.close()
+
+#user modify scan:
+    print 'Open shutter for collecting XANES.'
+        
+    bshopen.put(1)
+    time.sleep(2)
+    while bshsta.get() == 1:
+        print 'shutter did not open, executing opening command again.' 
+        bshopen.put(1)
+        time.sleep(2)
+
+    time.sleep(2)
+
+    print 'Shutter opend.'
+
+    #%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=0 --xnumstep=19 --xstepsize=2 --ystart=-80 --ynumstep=79 --ystepsize=2 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+    %run ./srx-coord-energy-sdd-timeout.py --config='/nfs/xf05id1/energyScanConfig/20151110_Zn_2.text' --checkbeam --acqtime=0.35 --acqnum=1
+
+    print 'Done with this XANES. Closing shutter for position change.'
+    bshclose.put(1) 
+    time.sleep(2)
+    while bshsta.get() == 0:
+        print 'shutter did not close, executing closing command again.'        
+        bshclose.put(1)
+        time.sleep(2)
+
+    time.sleep(2)
+
+        
+    print 'Shutter closed.'
+
+    bT=braggT.get()
+    print bT, Tth
+    if bT >= Tth:
+        print 'bragg motor overheated, wait 5 min.' 
+        time.sleep(300)
+      
+
+print 'Done with all points.'
+   
+#xcur = xRBV.get
+
+

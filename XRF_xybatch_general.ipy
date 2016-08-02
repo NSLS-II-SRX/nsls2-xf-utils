@@ -1,0 +1,178 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Aug  5 02:01:58 2015
+
+@author: xf05id1
+"""
+
+#user parameters
+#batchscantitle='300226_Hesterberg_Astreated'
+batchscantitle='300226_Hesterberg_testing'
+
+
+##############################################
+
+
+x=10 ##starting point of x
+y=10 ##starting point of y
+
+xtilenum=4
+ytilenum=4
+
+xsize=80
+ysize=80
+
+waittime=5. ###CHANGE THIS!!!!!!!!!!!
+
+
+################################################3
+
+#beamlien paramters
+batchscandir='/nfs/xf05id1/data/batchscans/2015-cycle3/'
+
+xstep=float(xsize)/float(xtilenum)
+ystep=float(ysize)/float(ytilenum)
+
+ptlist = []
+for i in xrange(xtilenum):
+    for j in xrange(ytilenum):
+        ptlist.append([x+xstep*i, y+ystep*j])  
+
+#####scan script
+from epics import PV
+import numpy
+import time
+import SRXenergy
+import SRXpmenergy_testing  #need to test the pm energy; ok for now; need ot wait betwen points
+
+def currenttimestr():
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    return currentTime
+
+#npoint
+#xVAL=PV('NPOINT:CH1:SET_POSITION.A')
+#xRBV=PV('NPOINT:CH1:GET_POSITION')
+
+#yVAL=PV('NPOINT:CH2:SET_POSITION.A')
+#yRBV=PV('NPOINT:CH2:GET_POSITION')
+
+braggT=PV('XF:05IDA-OP:1{Mono:HDCM-Ax:P}T-I')
+Tth = 110.0
+
+bshopen=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Opn-Cmd')
+bshclose=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Cls-Cmd')
+bshsta=PV('XF:05IDB-PPS:1{PSh:4}Sts:Cls-Sts')
+
+#for Aerotech
+#xVAL=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:X}Mtr.VAL')
+#xRBV=PV('XF:05IDD-ES:1{Stg:Smpl1-Ax:X}Mtr.RBV')
+
+#for Npoint
+fxVAL=PV('NPOINT:CH1:SET_POSITION.A')
+fxRBV=PV('NPOINT:CH1:GET_POSITION')
+
+fyVAL=PV('NPOINT:CH2:SET_POSITION.A')
+fyRBV=PV('NPOINT:CH2:GET_POSITION')
+
+#fxcur = xRBV.get()
+#fycur = yRBV.get()
+
+recordfile=batchscandir+currenttimestr()+'_XRF2D_xbatch_'+batchscantitle+'.py'
+f = open(recordfile, 'w') 
+
+f.write('#'+batchscantitle+'\n')
+f.write('#'+currenttimestr()+'\n')
+
+f.close()
+######################################################
+for pt in ptlist:
+
+    print 'starting x,y at:', pt
+    xpt=pt[0]
+    ypt=pt[1]
+    #fxVAL.put(pt[0], wait=True)
+    #fyVAL.put(pt[1], wait=True)
+
+    if pt == ptlist[0]:
+        time.sleep(2)
+        print 'first point, wait for 1 s...'   
+    else:
+        time.sleep(waittime)
+        print 'wait for '+str(waittime)+' s...'
+    
+    fxcur = fxRBV.get()
+    fycur = yRBV.get()
+    
+    f = open(recordfile, 'a')    
+    f.write('x = '+str(fxcur)+'\n')
+    f.write('y = '+str(fycur)+'\n')    
+    D0=str(time.localtime()[0])
+    D1=str(time.localtime()[1])
+    D2=str(time.localtime()[2])
+    D3=str(time.localtime()[3])
+    D4=str(time.localtime()[4])
+    currentTime=D0+'_'+D1+'_'+D2+'_'+D3+'_'+D4
+    f.write('fileprefix = \''+currentTime+'_\'\n')
+
+    f.write('fileprefixList.append(fileprefix)\n\n')
+
+    f.close()
+
+#user modify scan:
+    print 'Open shutter for collecting XRF 2D map.'
+        
+    bshopen.put(1)
+    time.sleep(2)
+    while bshsta.get() == 1:
+        print 'shutter did not open, executing opening command again.' 
+        bshopen.put(1)
+        time.sleep(2)
+
+    time.sleep(2)
+
+    print 'Shutter opened.'
+    
+    xstartstr='--xstart='+str(xpt)
+    ystartstr='--ystart='+str(ypt)
+    print xstartstr
+    print ystartstr
+
+    #%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=0 --xnumstep=39 --xstepsize=0.5 --ystart=0 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo
+    #%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-90 --xnumstep=39 --xstepsize=0.5 --ystart=10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+
+    #for simulation
+    %run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} {ystartstr} {xstartstr} --xnumstep=6 --xstepsize=0.5 --ynumstep=5 --ystepsize=0.7 --wait=0.1 --acqtime=0.3 --acqnum=1 --checkbeam --checkcryo --simulate
+    
+    #for real:
+    #%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} $xstartstr --xnumstep=39 --xstepsize=0.5 $ystartstr --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+
+    print 'Done with this XRF 2D map. Closing shutter for position change.'
+    bshclose.put(1) 
+    time.sleep(2)
+    while bshsta.get() == 0:
+        print 'shutter did not close, executing closing command again.'        
+        bshclose.put(1)
+        time.sleep(2)
+
+    time.sleep(2)
+
+        
+    print 'Shutter closed.'
+
+    bT=braggT.get()
+    print bT, Tth
+    if bT >= Tth:
+        print 'bragg motor overheated, wait 30 min.' 
+        time.sleep(1800)
+      
+
+print 'Done with all points.'
+   
+#xcur = xRBV.get
+
+

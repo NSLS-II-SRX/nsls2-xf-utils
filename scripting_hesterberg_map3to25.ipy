@@ -1,0 +1,192 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Nov  8 18:28:13 2015
+
+@author: xf05id1
+"""
+import time
+
+
+bshopen=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Opn-Cmd')
+bshclose=PV('XF:05IDB-PPS:1{PSh:4}Cmd:Cls-Cmd')
+bshsta=PV('XF:05IDB-PPS:1{PSh:4}Sts:Cls-Sts')
+
+
+def shutterclose():
+    print 'Done with this XRF 2D map. Closing shutter for position change.'
+    bshclose.put(1) 
+    time.sleep(2)
+    while bshsta.get() == 0:
+        print 'shutter did not close, executing closing command again.'        
+        bshclose.put(1)
+        time.sleep(2)
+
+    time.sleep(2)
+        
+    print 'Shutter closed.'
+
+def shutteropen():
+    print 'Open shutter for collecting XRF 2D map.'
+        
+    bshopen.put(1)
+    time.sleep(2)
+    while bshsta.get() == 1:
+        print 'shutter did not open, executing opening command again.' 
+        bshopen.put(1)
+        time.sleep(2)
+
+    time.sleep(2)
+
+    print 'Shutter opend.'
+
+################script starts here##################
+#1
+#shutteropen()
+#%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-90 --xnumstep=39 --xstepsize=0.5 --ystart=-10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+#shutterclose()
+#time.sleep(300)
+
+#2
+#shutteropen()
+#%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-90 --xnumstep=39 --xstepsize=0.5 --ystart=10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+#shutterclose()
+#time.sleep(300)
+
+#3
+#shutteropen()
+#%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-90 --xnumstep=39 --xstepsize=0.5 --ystart=30 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+#shutterclose()
+#time.sleep(300)
+
+#4
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-90 --xnumstep=39 --xstepsize=0.5 --ystart=50 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#5
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-90 --xnumstep=39 --xstepsize=0.5 --ystart=70 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#6
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-70 --xnumstep=39 --xstepsize=0.5 --ystart=-10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#7
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-70 --xnumstep=39 --xstepsize=0.5 --ystart=10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#8
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-70 --xnumstep=39 --xstepsize=0.5 --ystart=30 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#9
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-70 --xnumstep=39 --xstepsize=0.5 --ystart=50 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#10
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-70 --xnumstep=39 --xstepsize=0.5 --ystart=70 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#11
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-50 --xnumstep=39 --xstepsize=0.5 --ystart=-10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#12
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-50 --xnumstep=39 --xstepsize=0.5 --ystart=10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#13
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-50 --xnumstep=39 --xstepsize=0.5 --ystart=30 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#14
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-50 --xnumstep=39 --xstepsize=0.5 --ystart=50 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#15
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-50 --xnumstep=39 --xstepsize=0.5 --ystart=70 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#16
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-30 --xnumstep=39 --xstepsize=0.5 --ystart=-10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#17
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-30 --xnumstep=39 --xstepsize=0.5 --ystart=10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#18
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-30 --xnumstep=39 --xstepsize=0.5 --ystart=30 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#19
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-30 --xnumstep=39 --xstepsize=0.5 --ystart=50 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#20
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-30 --xnumstep=39 --xstepsize=0.5 --ystart=70 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#21
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-10 --xnumstep=39 --xstepsize=0.5 --ystart=-10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#22
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-10 --xnumstep=39 --xstepsize=0.5 --ystart=10 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#23
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-10 --xnumstep=39 --xstepsize=0.5 --ystart=30 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#24
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-10 --xnumstep=39 --xstepsize=0.5 --ystart=50 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+
+#25
+shutteropen()
+%run ./srx-2dscan-sdd-timeout.py --detname=XF:05IDA{IM:1} --xstart=-10 --xnumstep=39 --xstepsize=0.5 --ystart=70 --ynumstep=39 --ystepsize=0.5 --wait=0.1 --acqtime=0.5 --acqnum=1 --checkbeam --checkcryo
+shutterclose()
+time.sleep(300)
+

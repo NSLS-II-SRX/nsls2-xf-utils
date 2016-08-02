@@ -1,3 +1,4 @@
+from __future__ import print_function
 import epics
 import math
 import time
@@ -29,7 +30,7 @@ class nsls2fe():
 			try:
 				ax=self.fe.PV(felist[self.fename]['ax']).get()
 			except CA.Client.Exception:
-				print "cannot connect to PV"
+				print("cannot connect to PV")
 			else:
 				return ax
 		else:
@@ -40,7 +41,7 @@ class nsls2fe():
 			try:
 				ay=self.fe.PV(felist[self.fename]['ay']).get()
 			except CA.Client.Exception:
-				print "cannot connect to PV"
+				print("cannot connect to PV")
 			else:
 				return ay
 		else:
@@ -51,7 +52,7 @@ class nsls2fe():
 			try:
 				ox=self.fe.PV(felist[self.fename]['ox']).get()
 			except CA.Client.Exception:
-				print "cannot connect to PV"
+				print("cannot connect to PV")
 			else:
 				return ox
 		else:
@@ -62,7 +63,7 @@ class nsls2fe():
 			try:
 				oy=self.fe.PV(felist[self.fename]['oy']).get()
 			except CA.Client.Exception:
-				print "cannot connect to PV"
+				print("cannot connect to PV")
 			else:
 				return oy
 		else:
@@ -75,7 +76,7 @@ class nsls2fe():
 				#need this timeout...maybe the gate way?  no way to pass timeout to get()?
 				time.sleep(0.1)
 			except Exception:
-				print "cannot connect to PV"
+				print("cannot connect to PV")
 		return self.bbalist
 	#todo: implement centers/gaps as in srxslit.py
 	def tb(self,*args):

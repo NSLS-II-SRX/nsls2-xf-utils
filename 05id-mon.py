@@ -49,7 +49,7 @@ gvlist={'00 GV_MASK':'FE:C05A-VA{GV:2}DB:Pos-Sts',\
 igvlist=dict((gvlist[j],j) for j in gvlist.keys())
 #dict for CCGs
 #'key',['PV',warn limit, alarm limit]
-ccglist={'00 IG_MASK':['XF:05IDA-VA:0{Msk:1-CCG:1}P-I',3e-9,1e-8],\
+ccglist={'00 IG_MASK':['XF:05IDA-VA:0{Msk:1-CCG:1}P-I',5e-9,1e-8],\
  '01 IG_BC1':['XF:05IDA-VA:0{BC:1-CCG:1}P-I',8e-9,5e-8],\
  '03 IG_BC2':['XF:05IDA-VA:1{BC:2-CCG:1}P-I',8e-9,5e-8],\
  '04 IG_HFM':['XF:05IDA-VA:1{Mir:1-CCG:1}P-I',3e-8,5e-8],\
@@ -61,17 +61,17 @@ ccglist={'00 IG_MASK':['XF:05IDA-VA:0{Msk:1-CCG:1}P-I',3e-9,1e-8],\
  '10 IG_SH-B':['XF:05IDB-VA:1{PSh:4-CCG:1}P-I',8e-9,3e-8],\
  '11 IG_BT-C':['XF:05IDD-VA:1{BT:1-CCG:1}P-I',8e-9,3e-8],\
  '12 IG_BT-D':['XF:05IDD-VA:1{BT:1-CCG:2}P-I',8e-9,1e-8],\
- '13 IG_HFFM':['XF:05IDD-VA:1{Mir:2-CCG:1}P-I',1e-8,5e-8],\
- '14 IG_HRFM':['XF:05IDD-VA:1{Mir:4-CCG:1}P-I',1e-8,5e-8]\
+ '13 IG_HFFM':['XF:05IDD-VA:1{Mir:2-CCG:1}P-I',3e-8,5e-8],\
+ '14 IG_HRFM':['XF:05IDD-VA:1{Mir:4-CCG:1}P-I',3e-8,5e-8]\
 }
 iccglist=dict((ccglist[j][0],j) for j in ccglist.keys())
 flowlist={'00 FL_MASK':['XF:05IDA-OP:1{Msk:1}F-1-I',1.1,1.],\
  '01 FL_BC1':['XF:05IDA-OP:1{Fltr:1}F-I',1.0,.8],\
  '02 FL_BT-A':['XF:05IDA-OP:1{Slt:1}F-I',1.,.8],\
- '03 FL_BC2':['XF:05IDA-OP:1{Mir:1}F-I',.9,.8],\
+ '03 FL_BC2':['XF:05IDA-OP:1{Mir:1}F-I',.83,.75],\
  '04 FL_HFM':['XF:05IDA-OP:1{Slt:2}F-I',.9,.8],\
- '05 FL_DCM':['XF:05IDA-OP:1{Mono:HDCM}F-I',1.,.8],\
- '06 FL_BPM1':['XF:05IDA-OP:1{BS:WB}F-1-I',1.1,1.]\
+ '05 FL_DCM':['XF:05IDA-OP:1{Mono:HDCM}F-I',.88,.8],\
+ '06 FL_BPM1':['XF:05IDA-OP:1{BS:WB}F-1-I',.93,.85]\
 }
 iflowlist=dict((flowlist[j][0],j) for j in flowlist.keys())
 #high voltage power supplies for ion pumps
@@ -135,9 +135,9 @@ errlist={'00 MASK':'FE:C05A-VA{GV:2}DB:Pos-Sts',\
 ierrlist=dict((errlist[j],j) for j in errlist.keys())
 
 tlist={#
- '00 T_MASK':['XF:05IDA-OP:1{Msk:1}T:TU-I',29.8,30.5],\
+ '00 T_MASK':['XF:05IDA-OP:1{Msk:1}T:TU-I',32.9,33.5],\
  '01 T_BC1':['XF:05IDA-OP:1{Fltr:1}T:H2OOut-I',29.8,30.5],\
- '02 T_BT-A':['XF:05IDA-OP:1{Slt:1U}T:TU-I',29.8,30.5],\
+ '02 T_BT-A':['XF:05IDA-OP:1{Slt:1U}T:TU-I',30.1,30.5],\
  '03 T_BC2':['XF:05IDA-OP:1{Mir:1}T:MskWtrOut-I',29.8,30.5],\
  '04 T_HFM':['XF:05IDA-OP:1{BS:WB}T:B-I',29.8,30.5],\
  '05 T_DCM':['XF:05IDA-OP:1{BS:PB}T:B-I',29.8,30.5],\
@@ -147,9 +147,9 @@ tlist={#
 itlist=dict((tlist[j][0],j) for j in tlist.keys())
 
 shutlist={#0 open, 1 closed
- '00':'XF:05ID-PPS{Sh:WB}Sts:Open-Sts',\
- '07':'XF:05IDA-PPS:1{PSh:2}Sts:Open-Sts',\
- '12':'XF:05IDB-PPS:1{PSh:4}Sts:Open-Sts'\
+ '00':'XF:05ID-PPS{Sh:WB}Sts:Cls-Sts',\
+ '07':'XF:05IDA-PPS:1{PSh:2}Sts:Cls-Sts',\
+ '12':'XF:05IDB-PPS:1{PSh:4}Sts:Cls-Sts'\
 }
 ishutlist=dict((shutlist[j],j) for j in shutlist.keys())
 #initialize alarm arrays.  0 is no fault, 1 is minor fault, 2 is severe fault
@@ -283,7 +283,7 @@ def main(argv=None):
         ID05err.add_pv(errlist[name])   
         #delay for epics and pyepics to shake hands
         time.sleep(0.03)
-        ID05err.PV(errlist[name]).info
+        ID05err.PV(errlist[name]).get()
         if ID05err.get(errlist[name]) is not 0:
             erralarm[name]=ee_str
         else:
@@ -294,7 +294,7 @@ def main(argv=None):
     for name in ccglist.keys():
         ID05ccg.add_pv(ccglist[name][0])
         time.sleep(0.03)
-        ID05ccg.PV(ccglist[name][0]).info
+        ID05ccg.PV(ccglist[name][0]).get()
         #initialize alarm list
         tval=float(ID05ccg.get(ccglist[name][0]))
         if tval>float(ccglist[name][1]) and tval<=float(ccglist[name][2]):
@@ -320,7 +320,7 @@ def main(argv=None):
     for name in flowlist.keys():
         ID05flow.add_pv(flowlist[name][0])
         time.sleep(0.03)
-        ID05flow.PV(flowlist[name][0]).info
+        ID05flow.PV(flowlist[name][0]).get()
         #initialize alarm list
         tval=float(ID05flow.get(flowlist[name][0]))
         if tval<float(flowlist[name][1]) and tval>=float(flowlist[name][2]):
@@ -336,7 +336,7 @@ def main(argv=None):
     for name in gvlist.keys():
         ID05gv.add_pv(gvlist[name]) 
         time.sleep(0.03)
-        ID05gv.PV(gvlist[name]).info
+        ID05gv.PV(gvlist[name]).get()
         if ID05gv.get(gvlist[name]) == 0:
             gvalarm[name]=ee_str
         else:
@@ -347,7 +347,7 @@ def main(argv=None):
     for name in shutlist.keys():
         ID05sh.add_pv(shutlist[name])
         time.sleep(0.03)
-        ID05sh.PV(shutlist[name]).info
+        ID05sh.PV(shutlist[name]).get()
         if ID05sh.get(shutlist[name]) == 0:
             shalarm[name]=ok_str
         else:

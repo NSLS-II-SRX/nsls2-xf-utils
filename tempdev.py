@@ -1,4 +1,5 @@
 import epics
+from epics import ca
 import time
 
 epstemplist={#
@@ -82,8 +83,7 @@ class EPSTemperature():
 		self.temp=epics.Device()
 		for name in epstemplist.keys():
 			self.temp.add_pv(epstemplist[name])
-			time.sleep(0.05)
-			self.temp.PV(epstemplist[name]).info
+			self.temp.PV(epstemplist[name]).get()
 	def avgm1u(self):
 		return ( float(self.temp.get(epstemplist['00 T_MASK1-TU']))\
 		 + float(self.temp.get(epstemplist['00 T_MASK1-BU']))\

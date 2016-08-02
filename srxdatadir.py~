@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Oct 26 12:31:18 2015
+
+@author: xf05id1
+"""
+
+safnum='300198'
+usrlastname='root'
+
+#setup default file directories
+#xspress3 file directory
+#dfx3filedir = '/data/XSPRESS3/2015-3/in-house/'
+#dfx3filedir = '/data/XSPRESS3/2015-3/300198/'
+dfx3filedir = '/data/XSPRESS3/2015-3/'+safnum+'/'
+
+#pyxrf file directory
+#dfpyxrffoutdir='/nfs/xf05id1/data/pyxrf_analysis/unsorted/'
+dfpyxrffoutdir='/nfs/xf05id1/data/pyxrf_analysis/2015cycle3/'+safnum+'_'+usrlastname+'/'
+
+
+#Athena file directory
+#dfathenaoutdir='/nfs/xf05id1/data/AthenaFormat/unsorted/'
+#dfathenaoutdir='/nfs/xf05id1/data/AthenaFormat/300198_root/'
+dfathenaoutdir='/home/xf05id1/localdata/AthenaFormat/'+safnum+'_'+usrlastname+'/'
