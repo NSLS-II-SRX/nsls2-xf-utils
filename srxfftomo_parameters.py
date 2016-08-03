@@ -19,7 +19,7 @@ sample1_proj = 'ba4daae2-1568-41bc-b35c'
 sample1_wf2 = 'da0bf3fc-651d-4bcd-8a30'
 
 out_filepath = '/home/xf05id1/localdata/TomoCommissioning/'
-sample1_name = 'testsample_02'
+sample1_name = 'testsample_03'
 
 
 datapath = filepath_sc
@@ -36,7 +36,7 @@ outputfile_tiff = outpath + samplename + '/' + samplename +'_corrected.tiff'
 
 #suggest work flow:
 #%run '/nfs/xf05id1/src/nsls2-xf-utils/srxfftomo_parameters.py'
-#proj = srxfftomo_process.srxfftomo_correction()
-#proj = srxfftomo_process.srxfftomo_findcenter(proj = proj, autocheck = True)
-#proj = srxfftomo_process.srxfftomo_findcenter(proj = proj, check_cen_range_step = [390, 410, 1])  #find update center
-#srxfftomo_recon(proj, rot_center = 436)
+#proj = srxfftomo_process.srxfftomo_correction(filepath_sc, sample1_df, sample1_wf1, sample1_wf2, sample1_proj, outpath = out_filepath, samplename = sample1_name)
+#srxfftomo_process.srxfftomo_findcenter(proj = proj, autocheck = True, outpath = out_filepath, samplename = sample1_name)
+#srxfftomo_process.srxfftomo_findcenter(proj = proj, check_cen_range_step = [390, 410, 1])  #find update center
+#srxfftomo_recon(proj, rot_center = 436, outpath = out_filepath, samplename = sample1_name)
