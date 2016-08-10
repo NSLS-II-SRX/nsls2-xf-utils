@@ -51,23 +51,23 @@ timestamp_file = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbatte
 #samplename = 'cell01_anode' 
 #timestamp_file = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/cell01_anode.txt'
 
-ec_voltage_fn = 'cell01_Ewe_V.txt'
-ec_capacity_fn = 'cell01_capacity_mAhg-1.txt'
-ec_time_fn = 'cell01_time_s.txt'
+#ec_voltage_fn = 'cell01_Ewe_V.txt'
+#ec_capacity_fn = 'cell01_capacity_mAhg-1.txt'
+#ec_time_fn = 'cell01_time_s.txt'
 
-#cell04_cathode_wd = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/batch_xrf_cell04_cathode/' 
+cell04_cathode_wd = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/batch_xrf_cell04_cathode/' 
 #cell04_cathode = [2725, 2730, 2734, 2739, 2743, 2747, 2751, 2755, 2759, 2763, 2767, 2771, 2775, 2779]
-##axis_xlim = [-20, 80000]
-#axis_xlim = None
-##cell04_cathode = [2755]
-#
-#maxscale = 1.6e13
-#minscale = 0.2e13
-#
-#wd = cell04_cathode_wd
-#scan_list =  cell04_cathode
-#samplename = 'cell04_cathode' 
-#timestamp_file = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/cell04_cathode.txt'
+#axis_xlim = [-20, 80000]
+axis_xlim = None
+cell04_cathode = [2755, 2771]
+
+maxscale = 1.6e13
+minscale = 0.2e13
+
+wd = cell04_cathode_wd
+scan_list =  cell04_cathode
+samplename = 'cell04_cathode' 
+timestamp_file = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/cell04_cathode.txt'
 ###
 #cell04_anode_wd = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/batch_xrf_cell04_anode/' 
 #cell04_anode = [2727, 2731, 2735, 2740, 2744, 2748, 2752, 2756, 2760, 2764, 2768, 2772, 2776, 2780]
@@ -87,7 +87,7 @@ ec_time_fn = 'cell01_time_s.txt'
 #ec_capacity_fn = 'cell04_capacity_mAhg-1.txt'
 #ec_time_fn = 'cell04_time_s.txt'
 #
-#ec_wd = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/ElectrochemicalData/'
+ec_wd = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/ElectrochemicalData/'
 
 
 
@@ -239,6 +239,7 @@ def tiff_ec_coplot(xrfwd = wd, scanidlist = scan_list, timestamp_file = timestam
             tmp = norm_img
             norm_img = numpy.zeros((check_ysize, check_xsize))
             norm_img[0:(check_ysize-1), 0:check_xsize] = tmp
+            norm_img = np.float32(norm_img)
             print(scanid)
         
         norm_img = scipy.ndimage.zoom(norm_img, resampling_factor, order=3)
@@ -273,7 +274,8 @@ def tiff_ec_coplot(xrfwd = wd, scanidlist = scan_list, timestamp_file = timestam
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
             #scipy.misc.imsave(outputfile_tiff, norm_img)
-            tifffile.imsave(outputfile_tiff, norm_img)
+            norm_img_32 = np.float32(norm_img)
+            tifffile.imsave(outputfile_tiff, norm_img_32)
             
         #return norm_img
         

@@ -131,7 +131,7 @@ def srxfftomo_data_reduction(proj, datatype_set = 'float32',
             proj = scipy.ndimage.zoom(proj, [1, 1./downsample_factor, 1./downsample_factor], order = downsample_order)
 
     if datatype_set is 'float32':
-        print('    converting data to flaot 32 bits')
+        print('    converting data to float 32 bits')
         proj = np.float32(proj)
     else:
         print('    no data converstion is done')
