@@ -1,0 +1,58 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Aug 13 20:29:05 2016
+
+@author: xf05id1
+"""
+
+user_repeat_num = 20
+
+user_xylist = [[10, 20], [20, 30]]
+xanes_samplename = ['CuS', 'CuS-S']
+user_xanes_acqtime = 0.3
+
+Cuk = 8979
+user_erange = [Cuk-50, Cuk-30, Cuk+60, Cuk+120]
+user_estep = [2, 1, 5]
+
+user_batch_dir = '/nfs/xf05id1/userdata/2016_cycle2/300441_Chen-Wiegart-LiSbattery/'
+user_batch_filename = 'xrf_batch_LiSbattery.txt'
+
+xrf_energy = 10
+xrf_c2x = 4.2
+xrf_c1r = -4.674
+waittime_after_change_xrfenergy = 10
+
+xanes_energy = 9.0
+xanes_c2x = 4.2
+xanes_c1r = -4.674
+waittime_after_change_xanesenergy = 10
+
+adjust_c2x = False
+adjust_c1r = False
+    
+for run_num in range(user_repeat_num):
+    energy.move(xrf_energy)
+    if adjust_c2x:
+        dcm.c2_x.move(xrf_c2x)
+    if adjust_c1r:
+        dcm.c1_roll.move(xrf_c1r)
+    time.sleep(waittime_after_change_xrfenergy)
+    
+    hf2dxrf_xybatch(batch_dir = user_batch_dir, batch_filename = user_batch_filename, waittime = 5, repeat = 1, batch_filelog_ext = 'run_'+str(run_num))
+    
+    energy.move(xanes_energy)
+    if adjust_c2x:
+        dcm.c2_x.move(xanes_c2x)
+    if adjust_c1r:
+        dcm.c1_roll.move(xanes_c1r)
+    time.sleep(waittime_after_change_xanesenergy)
+    
+    xanes_filename = []
+    for item in xanes_samplename:
+        xanes_filename.append(item + '_run' + str(run_num))
+    
+    hfxanes_xybatch(xylist= user_xylist, samplename = xanes_samplename, filename = xanes_filename,
+                    erange = user_erange, estep = user_estep,  
+                    harmonic = None, correct_c2_x=True, delaytime=0.1,             
+                    acqtime = user_xanes_acqtime, roinum=1, i0scale = 1e8, itscale = 1e8)    

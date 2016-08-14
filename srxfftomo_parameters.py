@@ -4,6 +4,7 @@ Created on Tue Aug  2 10:22:29 2016
 
 @author: xf05id1
 """
+#note: 1351 missing post scan wf
 
 import matplotlib.pyplot as plt
 import numpy as np
