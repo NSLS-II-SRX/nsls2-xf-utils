@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Aug 13 20:29:05 2016
+Note: to avoid errors, take out all the suspenders if possible
 
-@author: xf05id1
+run xrf using hf2dxrf_xybatch
+run xanes using hfxanes_xybatch
+
+@author: ycchen
 """
 
-user_repeat_num = 20
+user_repeat_num = 3
 
-user_xylist = [[10, 20], [20, 30]]
-xanes_samplename = ['CuS', 'CuS-S']
+user_xylist = [[25.46,25.687], [25.56, 25.787]]
+xanes_samplename = ['CuStestp1', 'CuStestp2']
 user_xanes_acqtime = 0.3
 
 Cuk = 8979
@@ -16,43 +20,65 @@ user_erange = [Cuk-50, Cuk-30, Cuk+60, Cuk+120]
 user_estep = [2, 1, 5]
 
 user_batch_dir = '/nfs/xf05id1/userdata/2016_cycle2/300441_Chen-Wiegart-LiSbattery/'
-user_batch_filename = 'xrf_batch_LiSbattery.txt'
+#user_batch_filename = 'xrf_batch_LiSbattery.txt'
+user_batch_filename = 'xrf_batch_LiSbattery_test.txt'
 
 xrf_energy = 10
 xrf_c2x = 4.2
 xrf_c1r = -4.674
-waittime_after_change_xrfenergy = 10
+waittime_after_change_xrfenergy = 5
 
 xanes_energy = 9.0
 xanes_c2x = 4.2
 xanes_c1r = -4.674
-waittime_after_change_xanesenergy = 10
+waittime_after_change_xanesenergy = 5
 
 adjust_c2x = False
 adjust_c1r = False
+
+testing = False #energy axis will not be moved
     
 for run_num in range(user_repeat_num):
-    energy.move(xrf_energy)
-    if adjust_c2x:
-        dcm.c2_x.move(xrf_c2x)
-    if adjust_c1r:
-        dcm.c1_roll.move(xrf_c1r)
+    
+    if testing is True:
+        print('energy will be moved here to', xrf_energy)        
+    else:
+        print('moving energy to', xrf_energy)
+        energy.move(xrf_energy)
+    
+        if adjust_c2x:
+            dcm.c2_x.move(xrf_c2x)
+        if adjust_c1r:
+            dcm.c1_roll.move(xrf_c1r)
     time.sleep(waittime_after_change_xrfenergy)
     
-    hf2dxrf_xybatch(batch_dir = user_batch_dir, batch_filename = user_batch_filename, waittime = 5, repeat = 1, batch_filelog_ext = 'run_'+str(run_num))
+    if testing is True:
+        print('xrf batch scans will be run here')
+    else:
+        print('running xrf batch scans')
+        gs.RE(hf2dxrf_xybatch(batch_dir = user_batch_dir, batch_filename = user_batch_filename, waittime = 5, repeat = 1, batch_filelog_ext = 'run_'+str(run_num)))
     
-    energy.move(xanes_energy)
-    if adjust_c2x:
-        dcm.c2_x.move(xanes_c2x)
-    if adjust_c1r:
-        dcm.c1_roll.move(xanes_c1r)
+    if testing is True:
+        print('energy will be moved here to', xanes_energy)        
+    else:
+        print('moving energy to', xanes_energy)    
+        energy.move(xanes_energy)
+        
+        if adjust_c2x:
+            dcm.c2_x.move(xanes_c2x)
+        if adjust_c1r:
+            dcm.c1_roll.move(xanes_c1r)
     time.sleep(waittime_after_change_xanesenergy)
     
     xanes_filename = []
     for item in xanes_samplename:
         xanes_filename.append(item + '_run' + str(run_num))
     
-    hfxanes_xybatch(xylist= user_xylist, samplename = xanes_samplename, filename = xanes_filename,
+    if testing is True:
+        print('XANES will be run here, user_erange', user_erange)
+    else:
+        print('running XANES, user_erange', user_erange)
+        hfxanes_xybatch(xylist= user_xylist, samplename = xanes_samplename, filename = xanes_filename,
                     erange = user_erange, estep = user_estep,  
                     harmonic = None, correct_c2_x=True, delaytime=0.1,             
                     acqtime = user_xanes_acqtime, roinum=1, i0scale = 1e8, itscale = 1e8)    
