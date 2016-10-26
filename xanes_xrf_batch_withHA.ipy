@@ -20,7 +20,8 @@ user_erange = [Cuk-50, Cuk-30, Cuk+60, Cuk+120]
 user_estep = [2, 1, 5]
 
 user_batch_dir = '/nfs/xf05id1/userdata/2016_cycle2/300441_Chen-Wiegart-LiSbattery/'
-user_batch_filename = 'xrf_batch_LiSbattery.txt'
+#user_batch_filename = 'xrf_batch_LiSbattery.txt'
+user_batch_filename = 'xrf_batch_LiSbattery_withHA_chHA.txt'  #add hybrid anode
 #user_batch_filename = 'xrf_batch_LiSbattery_test.txt'
 
 xrf_energy = 10
@@ -37,11 +38,12 @@ adjust_c2x = False
 adjust_c1r = False
 
 testing = False #energy axis will not be moved
-shift_start=2
+shift_start=3
     
 for run_num_0 in range(user_repeat_num):
-    run_num = run_num_0 + shift_start    
-    
+    run_num = run_num_0 + shift_start  
+
+    #XRF data
     if testing is True:
         print('energy will be moved here to', xrf_energy)        
     else:
@@ -59,7 +61,8 @@ for run_num_0 in range(user_repeat_num):
     else:
         print('running xrf batch scans')
         gs.RE(hf2dxrf_xybatch(batch_dir = user_batch_dir, batch_filename = user_batch_filename, waittime = 5, repeat = 1, batch_filelog_ext = 'run_'+str(run_num)))
-    
+
+    #XANES data    
     if testing is True:
         print('energy will be moved here to', xanes_energy)        
     else:

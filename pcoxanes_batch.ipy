@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Aug 23 00:53:04 2016
+
+@author: xf05id1
+"""
+
+pcoedge.cam.acquire_time.set(0.02)
+
+for i in range(3):
+    pco_xanes(erange = [12658-80,12658-30, 12658+40, 12658+150], estep=[2, 0.5, 5], acqtime=.5, roinum=3, samplename='Sefoil', filename='Se_spatial_spectra',delaytime=0.2, harmonic=5)
+    time.sleep(15*60)
+
+pcoedge.cam.acquire_time.set(0.01)    
+
+for i in range(2):
+    pco_xanes(erange = [12658-80,12658-30, 12658+40, 12658+150], estep=[2, 0.5, 5], acqtime=.5, roinum=3, samplename='Sefoil', filename='Se_spatial_spectra',delaytime=0.2, harmonic=5)
+    time.sleep(15*60)
+
+pcoedge.cam.acquire_time.set(0.02)
+
+for i in range(2):
+    pco_xanes(erange = [12658-80,12658-30, 12658+40, 12658+150], estep=[2, 0.25, 5], acqtime=.5, roinum=3, samplename='Sefoil', filename='Se_spatial_spectra',delaytime=0.2, harmonic=5)
+    time.sleep(15*60)
