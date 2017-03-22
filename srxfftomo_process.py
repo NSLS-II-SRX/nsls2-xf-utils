@@ -20,7 +20,7 @@ import scipy.ndimage
 import skimage.measure
 
 def srxfftomo_fileio(datapath, prefix, return_avg = True,
-                     print_infile = False):
+                     print_infile = True):
     '''
     load frames from datapath with prefix
     if return_avg is True, only the average will be returned (useful for dark field and white field)
@@ -28,9 +28,12 @@ def srxfftomo_fileio(datapath, prefix, return_avg = True,
     '''
     
     frames = []
+    print(datapath)
     for i in os.listdir(datapath):
+        #print(i)
         if os.path.isfile(os.path.join(datapath,i)) and prefix in i:
             infile = os.path.join(datapath,i)
+            #print(infile)
             if print_infile is True:
                 print(infile)
             frame = tifffile.imread(infile)
@@ -67,22 +70,64 @@ def srxfftomo_fileio_proj(datapath, prefix, imgsize = None, numframes = 1441,
 
     return frames
 
-def srxfftomo_getdata(datapath, dfprefix, wf1prefix, wf2prefix, projprefix, 
+def chess_fileio_proj(datapath, prefix, imgsize = [2048, 2048], fnumstart=7761, fnumend = 9201,
+                          print_infile = False, print_fcounter = False):
+    '''
+    load frames from datapath with prefix in order
+    '''    
+
+    #df = np.array(tifffile.imread('/home/xf05id1/localdata/CHESSdata/darkfield_whitefield/AVG_darkfield.tif'))
+    #wf = np.array(tifffile.imread('/home/xf05id1/localdata/CHESSdata/darkfield_whitefield/synthetic_bright_field.tif'))
+
+    numframes = fnumend - fnumstart + 1
+    proj = np.zeros([numframes, imgsize[0], imgsize[1]])
+    for fnum in range(fnumstart, fnumend+1):
+        infile = os.path.join(datapath,prefix+'{0:05d}'.format(fnum)+'.tif')
+        if print_infile is True:
+            print(infile)
+        proj[fnum-fnumstart, :, :] = tifffile.imread(infile)
+
+    proj = np.array(proj)     
+    print('    loaded all projects.')    
+
+    return proj
+
+
+def chess_fileio(datapath, projname, df_file = None, wf_file = None):
+    #datapath = '/home/xf05id1/localdata/CHESSdata/NFA1300_11_nf/nf/'
+    #projname = '2048-590all.tif'    
+    proj=tifffile.imread(datapath+projname)
+    
+    if df_file is None:
+        df_file = '/home/xf05id1/localdata/CHESSdata/darkfield_whitefield/AVG_darkfield_crop.tif'
+    if wf_file is None:
+        wf_file = '/home/xf05id1/localdata/CHESSdata/darkfield_whitefield/synthetic_bright_field_crop664-590.tif'
+        
+    df = np.array(tifffile.imread(df_file))
+    wf = np.array(tifffile.imread(wf_file))   
+    
+    return proj, df, wf    
+    
+
+def srxfftomo_getdata(datapath, sample1_df_path, sample1_wf1_path, sample1_wf2_path, sample1_proj_path, dfprefix, wf1prefix, wf2prefix, projprefix, 
                        showimg = True):
 
     print('    loading dark field images')
-    df = srxfftomo_fileio(datapath, dfprefix, return_avg = True)
+    df = srxfftomo_fileio(datapath+sample1_df_path, dfprefix, return_avg = True, print_infile=False)
 
     print('    loading white field images')
     wf=[]    
-    wf1 = srxfftomo_fileio(datapath, wf1prefix, return_avg = True)
-    wf2 = srxfftomo_fileio(datapath, wf2prefix, return_avg = True)
+    wf1 = srxfftomo_fileio(datapath+sample1_wf1_path, wf1prefix, return_avg = True, print_infile=False)
+    wf2 = srxfftomo_fileio(datapath+sample1_wf2_path, wf2prefix, return_avg = True, print_infile=False)
     wf.append(wf1)
     wf.append(wf2)
     wf = np.average(wf, axis=0)
+    print(wf1.shape)
+    print(wf2.shape)
+    print(wf.shape)
     
     print('    loading projection images')
-    proj = srxfftomo_fileio_proj(datapath, projprefix, imgsize = wf.shape, numframes = 1441)
+    proj = srxfftomo_fileio_proj(datapath+sample1_proj_path, projprefix, imgsize = wf.shape, numframes = 1441, print_infile=False)
   
     if showimg is True:
         plt.close('all')           
@@ -143,7 +188,9 @@ def srxfftomo_stage_correction(proj):
     input: projections with background corrected (dark field substrated, white field normalized)
     return: projections corrected with the stage round-out/wobbling
     '''
-    cen_seg_x_file = '/home/xf05id1/localdata/TomoCommissioning/pintest_run3_1441proj/cen_seg_x.txt'
+    #cen_seg_x_file = '/home/xf05id1/localdata/TomoCommissioning/pintest_run3_1441proj/cen_seg_x.txt'
+    cen_seg_x_file =  '/home/xf05id1/localdata/SimerTomo_2016cycle3/calibration/cen_seg_x.txt'
+    
     with open(cen_seg_x_file) as f:
         cen_seg_x = [float(x.strip('\n')) for x in f.readlines()]    
     cen_seg_x = np.array(cen_seg_x)
@@ -153,7 +200,7 @@ def srxfftomo_stage_correction(proj):
     
     return proj 
     
-def srxfftomo_correction(datapath, dfprefix, wf1prefix, wf2prefix, projprefix,
+def srxfftomo_correction(datapath, sample1_df_path, sample1_wf1_path, sample1_wf2_path, sample1_proj_path, dfprefix, wf1prefix, wf2prefix, projprefix,
                     save_corrected_tiff = True,
                     save_find_center = True,
                     outpath = None,
@@ -167,7 +214,7 @@ def srxfftomo_correction(datapath, dfprefix, wf1prefix, wf2prefix, projprefix,
                     take_neg_log = True):
                         
     print('getting data')                    
-    df, wf, proj = srxfftomo_getdata(datapath, dfprefix, wf1prefix, wf2prefix, projprefix, 
+    df, wf, proj = srxfftomo_getdata(datapath, sample1_df_path, sample1_wf1_path, sample1_wf2_path, sample1_proj_path, dfprefix, wf1prefix, wf2prefix, projprefix, 
                        showimg = False)
                        
     print('correcting background')
@@ -178,7 +225,7 @@ def srxfftomo_correction(datapath, dfprefix, wf1prefix, wf2prefix, projprefix,
         proj = srxfftomo_data_reduction(proj, datatype_set = datareduction_datatype, 
                              downsample_factor = datareduction_downsample_factor, downsample_order = datareduction_downsample_order)
         output_tiff_prefix = '_resam_' + str(datareduction_downsample_factor) + '_dtypef32'
-                             
+#                             tomopy.remove_outlier(proj, 400, size=6)
     if correct_stage is True:
         print('correcting stage round out')    
         proj = srxfftomo_stage_correction(proj)   
@@ -210,7 +257,8 @@ def srxfftomo_findcenter(corrected_proj_tiff = None, proj = None,
                             save_find_center = True, autocheck = False,
                             check_cen_range_step = [390, 410, 1], 
                             auto_selecslice = True, cen_slice = 400,
-                            outpath = None, samplename = None):
+                            outpath = None, samplename = None, 
+                            starting_angle = 0, last_angle = 180):
 
     '''
     input needs to be either 
@@ -239,7 +287,7 @@ def srxfftomo_findcenter(corrected_proj_tiff = None, proj = None,
         center_check_path = outpath +'/' + samplename + '/center_check/'
         print('saving find center value into ' +  center_check_path)   
 
-        theta = tomopy.angles(proj.shape[0])
+        theta = tomopy.angles(proj.shape[0], ang1=starting_angle, ang2=last_angle)
         
         if autocheck is True:
             check_cen_range_step = [int(proj.shape[2]/2)-50, int(proj.shape[2])/2+50, 5]
@@ -255,7 +303,8 @@ def srxfftomo_findcenter(corrected_proj_tiff = None, proj = None,
                                         
 def srxfftomo_recon(corrected_proj_tiff = None, proj = None, 
                     rot_center = None, recon_algorithm = 'art', recon_section = None,
-                    outpath = None, recon_outpath = 'recon', samplename = None):
+                    outpath = None, recon_outpath = 'recon', samplename = None,
+                    starting_angle = 0, last_angle = 180):
 
     '''
     input needs to be either 
@@ -279,9 +328,11 @@ def srxfftomo_recon(corrected_proj_tiff = None, proj = None,
     print('running reconstruction')
 
     if recon_section is not None:    
-        proj = proj [:, recon_section[0]:recon_section[1], :]
+        proj = proj [:, recon_section[0]:recon_section[1], :]    
     
-    theta = tomopy.angles(proj.shape[0])
+    theta = tomopy.angles(proj.shape[0], ang1=starting_angle, ang2=last_angle)
+    print (proj.shape, theta.shape)
+    proj = tomopy.remove_stripe_ti(proj)
     rec = tomopy.recon(proj, theta, center=rot_center, algorithm= recon_algorithm)
 
     print('saving reconstruction into')

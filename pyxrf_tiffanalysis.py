@@ -83,9 +83,9 @@ timestamp_file = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbatte
 #minscale = 0.4e12
 #axis_xlim = [-20, 75000]
 #
-#ec_voltage_fn = 'cell04_Ewe_V.txt'
-#ec_capacity_fn = 'cell04_capacity_mAhg-1.txt'
-#ec_time_fn = 'cell04_time_s.txt'
+ec_voltage_fn = 'cell04_Ewe_V.txt'
+ec_capacity_fn = 'cell04_capacity_mAhg-1.txt'
+ec_time_fn = 'cell04_time_s.txt'
 #
 ec_wd = '/nfs/xf05id1/userdata/2016_cycle1/300398_Chen-Wiegart-LiSbattery/ElectrochemicalData/'
 
@@ -118,9 +118,9 @@ def ecdata_input(ec_wd = ec_wd,
     return ec_capacity, ec_voltage, ec_time
 
 
-def tiff_batch_process(wd, scan_list, samplename, noscale = False, 
+def tiff_batch_process(wd, scan_list, samplename, noscale = False, element_name = 'Fe_K', 
                        shownormonly = True, closefigwhendone = True, save_normfig = True,
-                       resampling_factor = 2, close_all_fig = True,
+                       resampling_factor = 2, close_all_fig = True, import_norm = True, scanid_inname = True,
                        maxscale = maxscale, minscale = minscale):
     
     plt.ion()
@@ -152,14 +152,24 @@ def tiff_batch_process(wd, scan_list, samplename, noscale = False,
     for scanid in scan_list:
     
         scanfolder = wd + 'output_tiff_' + str(scanid)+'/'
-        scan_Cu = scanfolder+'detsum_Cu_K.tiff'
-        scan_I0 = scanfolder+'current_preamp_ch2.tiff'
-        
         fig_norm_file = str(scanid) + 'norm' + fnaddon + '.png'
-        
-        im1 = Image.open(scan_Cu)
-        im2 = Image.open(scan_I0)
-        
+
+        if scanid_inname is True:
+            post_fix = '_'+ str(scanid)
+        else:
+            post_fix = ''
+
+        if element_name is not True:
+            scan_element = scanfolder+'detsum_'+ element_name + post_fix + '.tiff'
+            scan_I0 = scanfolder+'current_preamp_ch2' + post_fix + '.tiff'
+                
+            im1 = Image.open(scan_element)
+            im2 = Image.open(scan_I0)
+            norm_img = numpy.array(im1)/numpy.array(im2)
+        else: #detsum_Fe_K_885_norm.tiff
+            scan_element_norm = scanfolder+'detsum_'+ element_name + post_fix + '_norm.tiff'
+            norm_img = numpy.array(Image.open(scan_element_norm))                
+                
         if shownormonly is not True:
             plt.figure()
             implot = plt.imshow(numpy.array(im1), vmin = minscale, vmax = maxscale, interpolation = 'none')
@@ -170,7 +180,6 @@ def tiff_batch_process(wd, scan_list, samplename, noscale = False,
             plt.colorbar()
         
         plt.figure()
-        norm_img = numpy.array(im1)/numpy.array(im2)
         print(norm_img.shape)
         norm_img = scipy.ndimage.zoom(norm_img, resampling_factor, order=3)
         print(norm_img.shape)

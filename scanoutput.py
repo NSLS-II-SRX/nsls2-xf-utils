@@ -23,7 +23,7 @@ def textout(scan=-1, header=[], userheader={}, column=[], usercolumn = {}, userc
     if filedir is None:
         filedir = _DEFAULT_FILEDIR
     scanh= db[scan]
-    print(scanh.start)
+#    print(scanh.start)
     events=list(get_events(scanh, fill=False, stream_name='primary')) #fill=False so it does not look for the metadata in filestorage with reference (hdf5 here)
 
  
@@ -39,8 +39,8 @@ def textout(scan=-1, header=[], userheader={}, column=[], usercolumn = {}, userc
         filename='scan_'+ str(scanh.start['scan_id']) 
 
 
-    print(filedir)
-    print(filename)
+#    print(filedir)
+#    print(filename)
 
     f = open(filedir+filename, 'w')
 
@@ -66,7 +66,7 @@ def textout(scan=-1, header=[], userheader={}, column=[], usercolumn = {}, userc
                 print(item+' is written')
         else: 
             print(item+' is not in the scan')
-           
+    
     for key in userheader:
         f.write('# '+key+': '+str(userheader[key])+'\n')
         if output is True:
@@ -75,7 +75,6 @@ def textout(scan=-1, header=[], userheader={}, column=[], usercolumn = {}, userc
     for idx, item in enumerate(column): 
         if item in events[0].data.keys():        
             f.write('# Column.'+str(idx+1)+': '+item+'\n')
-
 
     f.write('# ') 
     for item in column: 
@@ -86,15 +85,21 @@ def textout(scan=-1, header=[], userheader={}, column=[], usercolumn = {}, userc
         f.write(item+'\t')
             
     f.write('\n')
+    f.flush()          
     
     idx = 0
     for event in events:
         for item in column: 
             if item in events[0].data.keys():        
-                f.write(str(event['data'][item])+'\t')
+                #f.write(str(event['data'][item])+'\t')
+                f.write('{0:8.6g}  '.format(event['data'][item]))
         for item in usercolumnname:
-            f.write(str(usercolumn[item][idx])+'\t')
-
+            try:
+                #f.write(str(usercolumn[item][idx])+'\t')
+                f.write('{0:8.6g}  '.format(usercolumn[item][idx]))
+            except KeyError:
+                idx += 1
+                f.write('{0:8.6g}  '.format(usercolumn[item][idx]))
         idx = idx + 1
         f.write('\n')
         

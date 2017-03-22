@@ -10,14 +10,20 @@ import glob, os
 from pyxrf.model.command_tools import fit_pixel_data_and_save
 
 
-def batchfit_dir(working_dir = None, parameter_filename = None, save_tiff = True):
+def batchfit_dir(working_dir = None, parameter_filename = None, save_tiff = True, save_norm = True):
     os.chdir(working_dir)
     print('change current directory to')
     print(working_dir)
     #wd = '/nfs/xf05id1/userdata/2016_cycle1/300372_Gallaway/xrfbatch/'
     for filename in glob.glob('*.h5'):
         print(filename)
-        try: fit_pixel_data_and_save(working_dir, filename,  
+        if save_norm is True:
+            try: fit_pixel_data_and_save(working_dir, filename,  
+                                param_file_name = parameter_filename,
+                                save_tiff = save_tiff, ic_name='current_preamp_ch2')
+            except: print('Cannot fit this scan: '+filename)
+        else:        
+            try: fit_pixel_data_and_save(working_dir, filename,  
                                 param_file_name = parameter_filename,
                                 save_tiff = save_tiff)
-        except: print('Cannot fit this scan: '+filename)
+            except: print('Cannot fit this scan: '+filename)

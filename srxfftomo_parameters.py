@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from imp import reload
 import srxfftomo_process
+from os import listdir
 
 plt.ion()
 
@@ -123,14 +124,14 @@ plt.ion()
 #sample1_name = 'recon1373'
 ##sample1_center = 381  
 
-filepath_sc = '/home/xf05id1/localdata/TomoCommissioning/Ecker_raw_sorted/scan1385/'
-sample1_df = '39d39a2d-6eea-4c78-98f8'   #one scan prior to df
-sample1_wf1 = 'd761856d-f871-420b-89e3'  #one scan prior to proj in the log
-sample1_proj = '794301ca-62ae-4c1e-a350' #scan corresponds to scanid	
-sample1_wf2 = 'b7637fb3-1691-4407-9419'  #one scan post proj in the log
-
-out_filepath = '/home/xf05id1/localdata/TomoCommissioning/sorted_recon/'
-sample1_name = 'recon1385'
+#filepath_sc = '/home/xf05id1/localdata/TomoCommissioning/Ecker_raw_sorted/scan1385/'
+#sample1_df = '39d39a2d-6eea-4c78-98f8'   #one scan prior to df
+#sample1_wf1 = 'd761856d-f871-420b-89e3'  #one scan prior to proj in the log
+#sample1_proj = '794301ca-62ae-4c1e-a350' #scan corresponds to scanid	
+#sample1_wf2 = 'b7637fb3-1691-4407-9419'  #one scan post proj in the log
+#
+#out_filepath = '/home/xf05id1/localdata/TomoCommissioning/sorted_recon/'
+#sample1_name = 'recon1385'
 #sample1_center = 387 # looks extremely simiar to sample 1373 #when run second time, it shows out of index, with one extra frame;first center is 381, second is 387
 
 #filepath_sc = '/home/xf05id1/localdata/TomoCommissioning/Ecker_raw_sorted/scan1488/'
@@ -184,18 +185,47 @@ sample1_name = 'recon1385'
 ##sample1_center = 399
 
 
-sample1_name = 'BNW62118147'
+#sample_name = 'BNW62118136'
+##sample_center = 488
+
+sample_name = 'BNW62118137' #recover all the data files
+#sample_center = 467
+
+#sample_name = 'BNW62118146-3-vial'
+##sample_center = 454
+
+#sample_name = 'BNW62118147-3-baggie' #feature 525
+##sample_center = 443
+
+#sample_name = 'BNW62118148-3-10poly-CO2-expo' #feature 651 cannot find feature
+##sample_center = 482
+
+sample_name = 'BNW62118148-3-10poly-CO2-expo' #feature 288 #run for test rotation center
+#sample_center = 450 # cannot find center based on center ring 
+
+#sample_name = 'BNW62118148-3-10poly-H2SO4-expo'  #feature 577
+##sample_center = 458
+
+#sample_name = 'BNW62118156'  #feature 528
+##sample_center = 456
+
+#sample_name = 'clay-10-per-3'
+##sample_center = 477
+
+#sample_name = 'clay-70-per-1'
+##sample_center = 478
 
 raw_filepath = '/home/xf05id1/localdata/SimerTomo_2016cycle3/'
-out_filepath = '/home/xf05id1/localdata/TomoCommissioning/sorted_recon/' #to be changed
+#out_filepath = '/home/xf05id1/localdata/TomoCommissioning/sorted_recon/' #to be changed
 
-filepath_sc = raw_filepath+sample1_name+'/'
+filepath_sc = raw_filepath+sample_name+'/'
+out_filepath = '/home/xf05id1/localdata/SimerTomo_2016cycle3/reconstruction/'
 
 #sample1_name = 'recon1364' #1364 is white field, we may need to run 1361? the front 1351 loss one post white field scan
 ##sample1_center = 399
 
 #####################################
-datapath = filepath_sc
+#datapath = filepath_sc
 #dfprefix = sample1_df
 #wf1prefix = sample1_wf1 
 #wf2prefix = sample1_wf2 
@@ -210,17 +240,18 @@ wf1prefix = listdir(filepath_sc+sample1_wf1_path)[0][:-12:]
 wf2prefix = listdir(filepath_sc+sample1_wf2_path)[0][:-12:]
 projprefix = listdir(filepath_sc+sample1_proj_path)[0][:-12:]
 
-outpath = out_filepath
-samplename = sample1_name
+#outpath = out_filepath
+#samplename = sample1_name
 #sample1_center = 393	#test
 
 
 
-outputfile_tiff = outpath + samplename + '/' + samplename +'_corrected.tiff'
+outputfile_tiff = out_filepath + sample_name + '/' + sample_name +'_corrected.tiff'
 
 #suggest work flow:
-#%run '/nfs/xf05id1/src/nsls2-xf-utils/srxfftomo_parameters.py'
-proj = srxfftomo_process.srxfftomo_correction(filepath_sc, sample1_df, sample1_wf1, sample1_wf2, sample1_proj, outpath = out_filepath, samplename = sample1_name)
-srxfftomo_process.srxfftomo_findcenter(proj = proj, autocheck = True, outpath = out_filepath, samplename = sample1_name)
-#srxfftomo_process.srxfftomo_findcenter(proj = proj, check_cen_range_step = [390, 410, 1], outpath = out_filepath, samplename = sample1_name)  #find update center
-#srxfftomo_process.srxfftomo_recon(proj=proj, rot_center = 434, outpath = out_filepath, samplename = sample1_name)
+#%run '/nfs/xf05id1/src/nsls2-xf-utils/srxfftomo_parameters.py' -i
+proj = srxfftomo_process.srxfftomo_correction(filepath_sc, sample1_df_path, sample1_wf1_path, sample1_wf2_path, sample1_proj_path, dfprefix, wf1prefix, wf2prefix, projprefix, outpath = out_filepath, samplename = sample_name)
+srxfftomo_process.srxfftomo_findcenter(proj = proj, autocheck = True, outpath = out_filepath, samplename = sample_name, cen_slice = 180)
+#srxfftomo_process.srxfftomo_findcenter(proj = proj, check_cen_range_step = [449-35, 449, 5], outpath = out_filepath, samplename = sample_name, cen_slice = 485)  #find update center
+#srxfftomo_process.srxfftomo_recon(proj=proj, rot_center = 434, outpath = out_filepath, samplename = sample_name, recon_algorithm = 'art')
+
