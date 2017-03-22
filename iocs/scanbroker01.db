@@ -1,0 +1,290 @@
+record(ai, "$(IOC)Scan$(recnum):P$(posnum)-S")
+{
+	field(DESC, "Positioner $(posnum) Start")
+	field(EGUF, "10")
+	field(PREC, "4")
+	field(EGU, "mm")
+	field(INP, "20")
+	field(FLNK, "$(IOC)Scan$(recnum):P$(posnum)-E")
+}
+record(ai, "$(IOC)Scan$(recnum):P$(posnum)-I")
+{
+	field(DESC, "Positioner $(posnum) Increment")
+	field(EGUF, "10")
+	field(PREC, "4")
+	field(EGU, "mm")
+	field(INP, "0.001")
+	field(FLNK, "$(IOC)Scan$(recnum):P$(posnum)-E")
+}
+record(ai, "$(IOC)Scan$(recnum):P$(posnum)-STP")
+{
+	field(DESC, "Positioner $(posnum) Steps")
+	field(EGUF, "10")
+	field(EGU, "")
+	field(INP, "10")
+	field(FLNK, "$(IOC)Scan$(recnum):P$(posnum)-E")
+}
+record(bi, "$(IOC)Scan$(recnum):P$(posnum)-ENA")
+{
+	field(DESC, "Positioner $(posnum) Enable")
+	field(INP, 1)
+}
+record(calc, "$(IOC)Scan$(recnum):P$(posnum)-E")
+{
+	field(DESC, "Positioner $(posnum) End")
+	field(SCAN, "Passive")
+	field(CALC, "B + (A * C)")
+	field(INPA, "$(IOC)Scan$(recnum):P$(posnum)-STP NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):P$(posnum)-S NPP NMS")
+	field(INPC, "$(IOC)Scan$(recnum):P$(posnum)-I NPP NMS")
+	field(INPD, "0")
+	field(EGU, "mm")
+	field(PREC, "4")
+	field(FLNK, "$(IOC)Scan$(recnum):P$(posnum)-NPTS")
+}
+record(calc, "$(IOC)Scan$(recnum):P$(posnum)-NPTS")
+{
+	field(DESC, "Positioner $(posnum) End")
+	field(SCAN, "Passive")
+	field(CALC, "A + 1")
+	field(INPA, "$(IOC)Scan$(recnum):P$(posnum)-STP NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):P$(posnum)-S NPP NMS")
+	field(INPC, "$(IOC)Scan$(recnum):P$(posnum)-I NPP NMS")
+	field(INPD, "0")
+	field(EGU, "")
+	field(PREC, "0")
+	field(FLNK, "$(IOC)Scan$(recnum):NPTS")
+	field(LOLO, "0")
+}
+record(ai, "$(IOC)Scan$(recnum):CURPT")
+{
+	field(DESC, "Scan $(recnum) current point")
+	field(EGUF, "0")
+	field(EGU, "")
+	field(FLNK, "$(IOC)Scan$(recnum):REMTIME")
+}
+record(ai, "$(IOC)Scan$(recnum):TPP")
+{
+	field(DESC, "Scan $(recnum) average time per step")
+	field(EGUF, "4")
+	field(EGU, "sec")
+}
+record(ai, "$(IOC)Scan$(recnum):ACQ")
+{
+	field(DESC, "Scan $(recnum) average time per step")
+	field(INP, "0.5")
+	field(EGUF, "4")
+	field(EGU, "sec")
+	field(FLNK, "$(IOC)Scan$(recnum):ESTTIME")
+}
+record(calc, "$(IOC)Scan$(recnum):NPTS")
+{
+	field(DESC, "Scan $(recnum) number of points")
+	field(SCAN, "Passive")
+	field(CALC, "(A + 1) * (B + 1)")
+	field(INPA, "$(IOC)Scan$(recnum):P1-STP NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):P2-STP NPP NMS")
+	field(INPC, "0")
+	field(INPD, "0")
+	field(EGU, "")
+	field(PREC, "0")
+	field(FLNK, "$(IOC)Scan$(recnum):ESTTIME")
+}
+record(bi, "$(IOC)Scan$(recnum):ENA")
+{
+	field(DESC, "Scan $(recnum) Enable")
+	field(INP, 0)
+	field(FLNK, "$(IOC)Scan$(recnum):NPTS")
+}
+record(bi, "$(IOC)Scan$(recnum):E-ENA")
+{
+	field(DESC, "Scan $(recnum) Energy Change Enable")
+	field(INP, 0)
+}
+record(bi, "$(IOC)Scan:ENA")
+{
+	field(DESC, "Scanning")
+	field(INP, 0)
+}
+record(stringin, "$(IOC)Scan:CUR")
+{
+	field(DESC, "Current scan name")
+}
+record(calc, "$(IOC)Scan$(recnum):ESTTIME")
+{
+	field(DESC, "estimated time for completion")
+	field(SCAN, "Passive")
+	field(CALC, "((A + 0.6) * B) / 3600")
+	field(INPA, "$(IOC)Scan$(recnum):ACQ NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):NPTS NPP NMS")
+	field(INPC, "$(IOC)Scan$(recnum):CURPT NPP NMS")
+	field(INPD, "0")
+	field(EGU, "hr")
+	field(PREC, "2")
+}
+record(calc, "$(IOC)Scan$(recnum):REMTIME")
+{
+	field(DESC, "estimated time to completion")
+	field(SCAN, "Passive")
+	field(CALC, "((A + 0.6) * (B - C)) / 3600")
+	field(INPA, "$(IOC)Scan$(recnum):ACQ NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):NPTS NPP NMS")
+	field(INPC, "$(IOC)Scan$(recnum):CURPT NPP NMS")
+	field(INPD, "0")
+	field(EGU, "hr")
+	field(PREC, "2")
+}
+record(ai, "$(IOC)Scan:REMTIME")
+{
+	field(DESC, "estimated time to completion")
+	field(EGUF, "2")
+	field(EGU, "hr")
+}
+record(ai, "$(IOC)Scan$(recnum):E$(posnum)-S")
+{
+	field(DESC, "Energy interval $(posnum) Start")
+	field(EGUF, "10")
+	field(PREC, "2")
+	field(EGU, "eV")
+	field(INP, "8000")
+	field(FLNK, "$(IOC)Scan$(recnum):E$(posnum)-E")
+}
+record(ai, "$(IOC)Scan$(recnum):E$(posnum)-I")
+{
+	field(DESC, "Energy interval $(posnum) Increment")
+	field(EGUF, "10")
+	field(PREC, "2")
+	field(EGU, "eV")
+	field(INP, "1.")
+	field(FLNK, "$(IOC)Scan$(recnum):E$(posnum)-E")
+}
+record(calc, "$(IOC)Scan$(recnum):E1-NPTS")
+{
+	field(DESC, "Energy interval 1 Points")
+	field(SCAN, "Passive")
+	field(CALC, "(A - B) / C + 1")
+	field(INPA, "$(IOC)Scan$(recnum):E2-S NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):E1-S NPP NMS")
+	field(INPC, "$(IOC)Scan$(recnum):E1-I NPP NMS")
+	field(INPD, "0")
+	field(EGU, "pts")
+	field(PREC, "0")
+	field(FLNK, "$(IOC)Scan$(recnum):E-ESTTIME")
+}
+record(calc, "$(IOC)Scan$(recnum):E2-NPTS")
+{
+	field(DESC, "Energy interval 2 Points")
+	field(SCAN, "Passive")
+	field(CALC, "(A - B) / C + 1")
+	field(INPA, "$(IOC)Scan$(recnum):E3-S NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):E2-S NPP NMS")
+	field(INPC, "$(IOC)Scan$(recnum):E2-I NPP NMS")
+	field(INPD, "0")
+	field(EGU, "pts")
+	field(PREC, "0")
+	field(FLNK, "$(IOC)Scan$(recnum):E1-NPTS")
+}
+record(calc, "$(IOC)Scan$(recnum):E3-NPTS")
+{
+	field(DESC, "Energy interval 1 Points")
+	field(SCAN, "Passive")
+	field(CALC, "(A - B) / C + 1")
+	field(INPA, "$(IOC)Scan$(recnum):EF-S NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):E3-S NPP NMS")
+	field(INPC, "$(IOC)Scan$(recnum):E3-I NPP NMS")
+	field(INPD, "0")
+	field(EGU, "pts")
+	field(PREC, "0")
+	field(FLNK, "$(IOC)Scan$(recnum):E2-NPTS")
+}
+record(calc, "$(IOC)Scan$(recnum):E1-E")
+{
+	field(DESC, "Energy interval $(posnum) End")
+	field(CALC, "A")
+	field(INPA, "$(IOC)Scan$(recnum):E2-S NPP NMS")
+	field(INPB, "")
+	field(INPC, "")
+	field(INPD, "0")
+	field(EGU, "eV")
+	field(PREC, "2")
+	field(FLNK, "$(IOC)Scan$(recnum):E1-NPTS")
+}
+record(calc, "$(IOC)Scan$(recnum):E2-E")
+{
+	field(DESC, "Energy interval $(posnum) End")
+	field(CALC, "A")
+	field(INPA, "$(IOC)Scan$(recnum):E3-S NPP NMS")
+	field(INPB, "")
+	field(INPC, "")
+	field(INPD, "0")
+	field(EGU, "eV")
+	field(PREC, "2")
+	field(FLNK, "$(IOC)Scan$(recnum):E2-NPTS")
+}
+record(calc, "$(IOC)Scan$(recnum):E3-E")
+{
+	field(DESC, "Energy interval $(posnum) End")
+	field(CALC, "A")
+	field(INPA, "$(IOC)Scan$(recnum):EF-S NPP NMS")
+	field(INPB, "")
+	field(INPC, "")
+	field(INPD, "0")
+	field(EGU, "eV")
+	field(PREC, "2")
+	field(FLNK, "$(IOC)Scan$(recnum):E3-NPTS")
+}
+record(ai, "$(IOC)Scan$(recnum):EF-S")
+{
+	field(DESC, "Energy End Point $(recnum)")
+	field(EGUF, "10")
+	field(PREC, "2")
+	field(EGU, "eV")
+	field(INP, "8000")
+	field(FLNK, "$(IOC)Scan$(recnum):E3-E")
+}
+record(ai, "$(IOC)Scan$(recnum):ROIN")
+{
+	field(DESC, "Energy ROI for Scan $(recnum)")
+	field(EGUF, "10")
+	field(PREC, "0")
+	field(EGU, "")
+	field(INP, "1")
+}
+record(ai, "$(IOC)Scan$(recnum):E-WAIT")
+{
+	field(DESC, "Wait Time After Energy Scan $(recnum)")
+	field(EGUF, "10")
+	field(PREC, "0")
+	field(EGU, "sec")
+	field(INP, "0")
+}
+record(ai, "$(IOC)Scan$(recnum):DETUNE")
+{
+	field(DESC, "Relative Undulator Detune for Energy Scan $(recnum)")
+	field(EGUF, "10")
+	field(PREC, "6")
+	field(EGU, "mm")
+	field(INP, "0")
+}
+record(stringin, "$(IOC)Scan$(recnum):FILEN")
+{
+	field(DESC, "Filename for Scan $(recnum)")
+	field(INP, "")
+}
+record(stringin, "$(IOC)Scan$(recnum):SAMPN")
+{
+	field(DESC, "Samplename for Scan $(recnum)")
+	field(INP, "")
+}
+record(calc, "$(IOC)Scan$(recnum):E-ESTTIME")
+{
+	field(DESC, "estimated time for completion")
+	field(SCAN, "Passive")
+	field(CALC, "((A + 1.5) * (B + C + D)) / 3600")
+	field(INPA, "$(IOC)Scan$(recnum):ACQ NPP NMS")
+	field(INPB, "$(IOC)Scan$(recnum):E1-NPTS NPP NMS")
+	field(INPC, "$(IOC)Scan$(recnum):E2-NPTS NPP NMS")
+	field(INPD, "$(IOC)Scan$(recnum):E3-NPTS NPP NMS")
+	field(EGU, "hr")
+	field(PREC, "2")
+}
